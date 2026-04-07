@@ -13,6 +13,14 @@ export const metadata: Metadata = {
     siteName: "Nexosur Digital",
     locale: "es_AR",
     type: "website",
+    images: [
+      {
+        url: "https://nexosurdigital.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Nexosur Digital — Hacemos simple lo digital",
+      },
+    ],
   },
 };
 
