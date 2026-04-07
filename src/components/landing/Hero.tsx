@@ -2,7 +2,7 @@ import { GradientDots } from "@/components/ui/GradientDots";
 
 export function Hero() {
   return (
-    <section className="h-dvh flex flex-col justify-center items-center text-center px-6 pt-32 relative">
+    <section className="h-dvh flex flex-col justify-center items-center text-center px-6 pt-32 relative overflow-hidden">
       {/* Glow */}
       <div className="absolute -top-[150px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-[radial-gradient(ellipse,rgba(74,108,247,0.07)_0%,transparent_70%)] pointer-events-none" />
 

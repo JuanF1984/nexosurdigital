@@ -18,12 +18,14 @@
   --font-body: "Sora", sans-serif;
 }
 
+html,
 body {
   font-family: var(--font-body);
   background-color: var(--color-deep);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  max-width: 100%;
 }
 
 body::before {
