@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://nexosurdigital.com/og-image.png",
+        url: "https://nexosurdigital.com.ar/og-image.png",
         width: 1200,
         height: 630,
         alt: "Nexosur Digital — Hacemos simple lo digital",
