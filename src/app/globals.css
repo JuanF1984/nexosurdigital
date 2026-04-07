@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-deep: #0a0e1a;
+  --color-surface: #111832;
+  --color-card: #151c38;
+  --color-card-light: rgba(255, 255, 255, 0.92);
+
+  --color-text-primary: #e8e6e1;
+  --color-text-secondary: #9a9bb0;
+  --color-text-dim: #6b6d82;
+
+  --color-accent-green: #2ecc71;
+  --color-accent-blue: #4a6cf7;
+  --color-whatsapp: #25d366;
+
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-body: "Sora", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-deep);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-accent-green), var(--color-accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--color-accent-green), var(--color-accent-blue));
+}
