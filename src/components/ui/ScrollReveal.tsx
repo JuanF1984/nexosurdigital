@@ -18,6 +18,7 @@ export function ScrollReveal({ children, className = "" }: ScrollRevealProps) {
             ([entry]) => {
                 if (entry.isIntersecting) {
                     el.style.opacity = "1";
+                    el.style.transform = "translateY(0)";
                     observer.unobserve(el);
                 }
             },
@@ -34,8 +35,9 @@ export function ScrollReveal({ children, className = "" }: ScrollRevealProps) {
             className={className}
             style={{
                 opacity: 0,
-                transition: "opacity 0.6s ease",
-                willChange: "opacity",
+                transform: "translateY(20px)",
+                transition: "opacity 0.6s ease, transform 0.6s ease",
+                willChange: "opacity, transform",
             }}
         >
             {children}
