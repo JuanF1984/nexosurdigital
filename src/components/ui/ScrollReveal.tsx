@@ -35,8 +35,9 @@ export function ScrollReveal({ children, className = "" }: ScrollRevealProps) {
             className={className}
             style={{
                 opacity: 0,
-                transform: "translateY(30px)",
-                transition: "opacity 0.7s ease, transform 0.7s ease",
+                transform: "translateY(16px)",
+                transition: "opacity 0.6s ease, transform 0.6s ease",
+                willChange: "opacity, transform",
             }}
         >
             {children}
