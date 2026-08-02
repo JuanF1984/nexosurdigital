@@ -28,14 +28,35 @@ const ISO_DATETIME_REGEX =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?(Z|[+-]\d{2}:\d{2})$/;
 
 const MAX_BODY_BYTES = 4096; // small, fixed-shape payload; no legitimate reason to be larger
-const ALLOWED_FIELDS = new Set(["deviceId", "event", "dateTime", "durationSeconds"]);
+const ALLOWED_FIELDS = new Set([
+  "deviceId",
+  "event",
+  "dateTime",
+  "durationSeconds",
+  "cutStartedAt",
+  "restoredAt",
+]);
 
-type ParsedPayload = {
+// Tolerance for rounding/delivery delays when checking that durationSeconds
+// matches the (restoredAt - cutStartedAt) difference reported by the device.
+const DURATION_TOLERANCE_SECONDS = 2;
+
+type RestoredPayload = {
   deviceId: string;
-  event: EnergyEventType;
-  dateTime: string;
-  durationSeconds: number | null;
+  event: "RESTAURADO";
+  cutStartedAt: string;
+  restoredAt: string;
+  durationSeconds: number;
 };
+
+type StandardPayload = {
+  deviceId: string;
+  event: Exclude<EnergyEventType, "RESTAURADO">;
+  dateTime: string;
+  durationSeconds: null;
+};
+
+type ParsedPayload = RestoredPayload | StandardPayload;
 
 function jsonError(status: number, error: string) {
   return NextResponse.json({ ok: false, error }, { status });
@@ -78,10 +99,25 @@ function formatDuration(totalSeconds: number): string {
   return parts.join(" ");
 }
 
+function isValidIsoDateTime(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    ISO_DATETIME_REGEX.test(value) &&
+    !Number.isNaN(Date.parse(value))
+  );
+}
+
+function isAbsent(value: unknown): boolean {
+  return value === undefined || value === null;
+}
+
 /**
  * Validates the parsed JSON body against the fixed schema. Returns either
  * the typed payload or an error message describing the first problem found.
- * No unknown fields are accepted.
+ * No unknown fields are accepted. The shape required depends on `event`:
+ * RESTAURADO requires cutStartedAt/restoredAt/durationSeconds and forbids
+ * dateTime; every other event keeps the original dateTime-based shape and
+ * forbids cutStartedAt/restoredAt.
  */
 function validatePayload(
   body: unknown
@@ -96,7 +132,8 @@ function validatePayload(
     }
   }
 
-  const { deviceId, event, dateTime, durationSeconds } = body as Record<string, unknown>;
+  const { deviceId, event, dateTime, durationSeconds, cutStartedAt, restoredAt } =
+    body as Record<string, unknown>;
 
   if (typeof deviceId !== "string" || !DEVICE_ID_REGEX.test(deviceId)) {
     return { ok: false, error: "deviceId inválido" };
@@ -105,59 +142,118 @@ function validatePayload(
   if (typeof event !== "string" || !(ALLOWED_EVENTS as readonly string[]).includes(event)) {
     return { ok: false, error: "event inválido" };
   }
+  const eventType = event as EnergyEventType;
 
-  if (
-    typeof dateTime !== "string" ||
-    !ISO_DATETIME_REGEX.test(dateTime) ||
-    Number.isNaN(Date.parse(dateTime))
-  ) {
+  if (eventType === "RESTAURADO") {
+    if (!isAbsent(dateTime)) {
+      return { ok: false, error: "dateTime no debe enviarse para RESTAURADO" };
+    }
+
+    if (!isValidIsoDateTime(cutStartedAt)) {
+      return { ok: false, error: "cutStartedAt inválido" };
+    }
+
+    if (!isValidIsoDateTime(restoredAt)) {
+      return { ok: false, error: "restoredAt inválido" };
+    }
+
+    if (
+      typeof durationSeconds !== "number" ||
+      !Number.isInteger(durationSeconds) ||
+      durationSeconds < 0 ||
+      durationSeconds > 604800
+    ) {
+      return { ok: false, error: "durationSeconds inválido" };
+    }
+
+    const cutMs = Date.parse(cutStartedAt);
+    const restoredMs = Date.parse(restoredAt);
+
+    if (restoredMs < cutMs) {
+      return { ok: false, error: "restoredAt debe ser posterior o igual a cutStartedAt" };
+    }
+
+    const actualDiffSeconds = (restoredMs - cutMs) / 1000;
+    if (Math.abs(actualDiffSeconds - durationSeconds) > DURATION_TOLERANCE_SECONDS) {
+      return {
+        ok: false,
+        error: "durationSeconds no coincide con la diferencia entre restoredAt y cutStartedAt",
+      };
+    }
+
+    return {
+      ok: true,
+      value: { deviceId, event: eventType, cutStartedAt, restoredAt, durationSeconds },
+    };
+  }
+
+  // CORTE, BAJA_TENSION, NORMAL and any other currently-allowed non-RESTAURADO event.
+  if (!isAbsent(cutStartedAt)) {
+    return { ok: false, error: "cutStartedAt solo es válido para RESTAURADO" };
+  }
+
+  if (!isAbsent(restoredAt)) {
+    return { ok: false, error: "restoredAt solo es válido para RESTAURADO" };
+  }
+
+  if (!isValidIsoDateTime(dateTime)) {
     return { ok: false, error: "dateTime inválido" };
   }
 
-  let duration: number | null;
-  if (durationSeconds === null) {
-    duration = null;
-  } else if (
-    typeof durationSeconds === "number" &&
-    Number.isInteger(durationSeconds) &&
-    durationSeconds >= 0 &&
-    durationSeconds <= 604800
-  ) {
-    duration = durationSeconds;
-  } else {
+  if (durationSeconds !== null) {
+    if (typeof durationSeconds === "number") {
+      return { ok: false, error: "durationSeconds solo es válido para RESTAURADO" };
+    }
     return { ok: false, error: "durationSeconds inválido" };
-  }
-
-  const eventType = event as EnergyEventType;
-  if (eventType !== "RESTAURADO" && duration !== null) {
-    return { ok: false, error: "durationSeconds solo es válido para RESTAURADO" };
   }
 
   return {
     ok: true,
-    value: { deviceId, event: eventType, dateTime, durationSeconds: duration },
+    value: { deviceId, event: eventType, dateTime, durationSeconds: null },
   };
 }
 
 function buildEmail(payload: ParsedPayload) {
-  const { deviceId, event, dateTime, durationSeconds } = payload;
+  const { deviceId, event } = payload;
   const subject = `${EVENT_SUBJECTS[event]} - ${deviceId}`;
-  const durationText = durationSeconds !== null ? formatDuration(durationSeconds) : null;
 
-  const textLines = [
+  if (event === "RESTAURADO") {
+    const { cutStartedAt, restoredAt, durationSeconds } = payload;
+    const durationText = formatDuration(durationSeconds);
+
+    const text = [
+      `Dispositivo: ${deviceId}`,
+      `Evento: ${EVENT_LABELS[event]}`,
+      `Inicio del corte: ${cutStartedAt}`,
+      `Restauración del servicio: ${restoredAt}`,
+      `Duración total: ${durationText}`,
+    ].join("\n");
+
+    const html = `<div style="font-family:sans-serif;font-size:14px;color:#111">
+  <h2 style="margin:0 0 12px">${escapeHtml(EVENT_SUBJECTS[event])}</h2>
+  <p style="margin:4px 0"><strong>Dispositivo:</strong> ${escapeHtml(deviceId)}</p>
+  <p style="margin:4px 0"><strong>Evento:</strong> ${escapeHtml(EVENT_LABELS[event])}</p>
+  <p style="margin:4px 0"><strong>Inicio del corte:</strong> ${escapeHtml(cutStartedAt)}</p>
+  <p style="margin:4px 0"><strong>Restauración del servicio:</strong> ${escapeHtml(restoredAt)}</p>
+  <p style="margin:4px 0"><strong>Duración total:</strong> ${escapeHtml(durationText)}</p>
+</div>`;
+
+    return { subject, text, html };
+  }
+
+  const { dateTime } = payload;
+
+  const text = [
     `Dispositivo: ${deviceId}`,
     `Evento: ${EVENT_LABELS[event]}`,
     `Fecha y hora: ${dateTime}`,
-  ];
-  if (durationText) textLines.push(`Duración: ${durationText}`);
-  const text = textLines.join("\n");
+  ].join("\n");
 
   const html = `<div style="font-family:sans-serif;font-size:14px;color:#111">
   <h2 style="margin:0 0 12px">${escapeHtml(EVENT_SUBJECTS[event])}</h2>
   <p style="margin:4px 0"><strong>Dispositivo:</strong> ${escapeHtml(deviceId)}</p>
   <p style="margin:4px 0"><strong>Evento:</strong> ${escapeHtml(EVENT_LABELS[event])}</p>
   <p style="margin:4px 0"><strong>Fecha y hora:</strong> ${escapeHtml(dateTime)}</p>
-  ${durationText ? `<p style="margin:4px 0"><strong>Duración:</strong> ${escapeHtml(durationText)}</p>` : ""}
 </div>`;
 
   return { subject, text, html };

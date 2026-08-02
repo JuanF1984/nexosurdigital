@@ -34,7 +34,42 @@ ALERT_EMAIL_TO=
 Si falta alguna de estas variables en el servidor, el endpoint responde
 `500` sin detallar cuál falta.
 
-## Petición válida
+## Esquema del payload
+
+El esquema depende de `event`. Hay dos formas posibles, mutuamente excluyentes:
+
+### `RESTAURADO`
+
+Reporta el ciclo completo del corte: cuándo empezó y cuándo se restauró el
+servicio. **No** lleva `dateTime` (se reemplaza por `cutStartedAt`/`restoredAt`).
+
+```
+POST /api/energy-event
+Content-Type: application/json
+Authorization: Bearer <DEVICE_API_KEY>
+
+{
+  "deviceId": "detector-casa-01",
+  "event": "RESTAURADO",
+  "cutStartedAt": "2026-08-01T21:35:10-03:00",
+  "restoredAt": "2026-08-01T22:12:46-03:00",
+  "durationSeconds": 2256
+}
+```
+
+| Campo              | Tipo              | Reglas                                                                                     |
+|---------------------|-------------------|-----------------------------------------------------------------------------------------------|
+| `deviceId`          | string            | 1-64 caracteres, solo `[A-Za-z0-9_-]`.                                                        |
+| `event`             | `"RESTAURADO"`    | —                                                                                              |
+| `cutStartedAt`      | string (ISO 8601) | Obligatorio. Debe incluir offset o `Z`.                                                       |
+| `restoredAt`        | string (ISO 8601) | Obligatorio. Debe incluir offset o `Z`. Debe ser posterior o igual a `cutStartedAt`.           |
+| `durationSeconds`   | number            | Obligatorio. Entero entre 0 y 604800. Debe coincidir con `restoredAt - cutStartedAt` con una tolerancia de ±2 segundos (redondeos/demoras). |
+
+`dateTime` no debe enviarse (o debe ser `null`) para este evento.
+
+### `CORTE`, `BAJA_TENSION`, `NORMAL` (y cualquier otro evento permitido a futuro)
+
+Mantiene el esquema original: un único timestamp del evento.
 
 ```
 POST /api/energy-event
@@ -49,16 +84,64 @@ Authorization: Bearer <DEVICE_API_KEY>
 }
 ```
 
-Campos:
-
 | Campo             | Tipo             | Reglas                                                                 |
 |--------------------|------------------|-------------------------------------------------------------------------|
 | `deviceId`         | string           | 1-64 caracteres, solo `[A-Za-z0-9_-]`.                                  |
-| `event`            | string (enum)    | `CORTE`, `BAJA_TENSION`, `RESTAURADO`, `NORMAL`.                        |
-| `dateTime`         | string (ISO 8601)| Debe incluir offset o `Z` (ej. `2026-08-01T17:18:55-03:00`).            |
-| `durationSeconds`  | number \| null   | Entero entre 0 y 604800. Solo puede ser distinto de `null` si `event` es `RESTAURADO`. |
+| `event`            | string (enum)    | `CORTE`, `BAJA_TENSION`, `NORMAL` (cualquier valor del enum salvo `RESTAURADO`). |
+| `dateTime`         | string (ISO 8601)| Obligatorio. Debe incluir offset o `Z` (ej. `2026-08-01T17:18:55-03:00`).            |
+| `durationSeconds`  | `null`           | Debe ser exactamente `null`. `cutStartedAt`/`restoredAt` no deben enviarse (o deben ser `null`). |
 
-No se aceptan campos adicionales a los cuatro listados.
+En ambos casos no se aceptan campos adicionales a los listados (el conjunto
+total de campos reconocidos por la API es `deviceId`, `event`, `dateTime`,
+`durationSeconds`, `cutStartedAt`, `restoredAt`; cuáles son válidos depende de
+`event`).
+
+### Ejemplos inválidos (→ `400`)
+
+```jsonc
+// cutStartedAt/restoredAt/durationSeconds obligatorios para RESTAURADO
+{ "deviceId": "detector-casa-01", "event": "RESTAURADO", "durationSeconds": 2256 }
+
+// restoredAt anterior a cutStartedAt
+{
+  "deviceId": "detector-casa-01",
+  "event": "RESTAURADO",
+  "cutStartedAt": "2026-08-01T22:12:46-03:00",
+  "restoredAt": "2026-08-01T21:35:10-03:00",
+  "durationSeconds": 2256
+}
+
+// durationSeconds no coincide con la diferencia real (tolerancia ±2s)
+{
+  "deviceId": "detector-casa-01",
+  "event": "RESTAURADO",
+  "cutStartedAt": "2026-08-01T21:35:10-03:00",
+  "restoredAt": "2026-08-01T22:12:46-03:00",
+  "durationSeconds": 100
+}
+
+// dateTime no debe enviarse junto con RESTAURADO
+{
+  "deviceId": "detector-casa-01",
+  "event": "RESTAURADO",
+  "dateTime": "2026-08-01T22:12:46-03:00",
+  "cutStartedAt": "2026-08-01T21:35:10-03:00",
+  "restoredAt": "2026-08-01T22:12:46-03:00",
+  "durationSeconds": 2256
+}
+
+// durationSeconds solo es válido para RESTAURADO
+{ "deviceId": "detector-casa-01", "event": "CORTE", "dateTime": "2026-08-01T17:18:55-03:00", "durationSeconds": 88 }
+
+// cutStartedAt/restoredAt solo son válidos para RESTAURADO
+{
+  "deviceId": "detector-casa-01",
+  "event": "NORMAL",
+  "dateTime": "2026-08-01T17:18:55-03:00",
+  "durationSeconds": null,
+  "cutStartedAt": "2026-08-01T21:35:10-03:00"
+}
+```
 
 ### Respuesta exitosa (`200`)
 
@@ -99,16 +182,32 @@ Ninguna respuesta de error expone detalles internos, claves ni stack traces.
    DEVICE_API_KEY=un-secreto-largo-y-aleatorio node scripts/test-energy-event.mjs
    ```
 
-   Variables opcionales: `BASE_URL`, `EVENT`, `DEVICE_ID`, `DURATION_SECONDS`
+   Por defecto envía un evento `CORTE`. Para probar `RESTAURADO` (con
+   `cutStartedAt`/`restoredAt`/`durationSeconds` coherentes entre sí,
+   generados automáticamente por el script):
+
+   ```bash
+   DEVICE_API_KEY=un-secreto-largo-y-aleatorio EVENT=RESTAURADO node scripts/test-energy-event.mjs
+   ```
+
+   Variables opcionales: `BASE_URL`, `EVENT`, `DEVICE_ID`, y para
+   `EVENT=RESTAURADO`: `DURATION_SECONDS`, `RESTORED_AT`, `CUT_STARTED_AT`
    (ver comentarios en el propio script).
 
    O bien con `curl` directamente:
 
    ```bash
+   # CORTE / BAJA_TENSION / NORMAL
    curl -i -X POST http://localhost:3000/api/energy-event \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer un-secreto-largo-y-aleatorio" \
      -d '{"deviceId":"detector-casa-01","event":"CORTE","dateTime":"2026-08-01T17:18:55-03:00","durationSeconds":null}'
+
+   # RESTAURADO
+   curl -i -X POST http://localhost:3000/api/energy-event \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer un-secreto-largo-y-aleatorio" \
+     -d '{"deviceId":"detector-casa-01","event":"RESTAURADO","cutStartedAt":"2026-08-01T21:35:10-03:00","restoredAt":"2026-08-01T22:12:46-03:00","durationSeconds":2256}'
    ```
 
 ## Configurar las variables en Vercel
