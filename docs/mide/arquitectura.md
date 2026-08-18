@@ -5,7 +5,8 @@
 MIDE es una plataforma genérica de monitoreo IoT de Nexo Sur. No existía
 como módulo formal en este proyecto hasta ahora; se introduce a partir de
 esta base de código (`/api/mide/*`, `supabase/migrations/*_mide_schema.sql`,
-`docs/mide/*`).
+`docs/mide/*`, y desde `/mide` el dashboard inicial — ver
+[`dashboard.md`](./dashboard.md)).
 
 ```text
 MIDE
@@ -88,14 +89,20 @@ cuando la conexión vuelva — la idempotencia de `/api/mide/event`
 sin duplicar datos. Esta lógica de firmware **no** se implementa en este
 cambio (fuera de alcance).
 
-## Futura web pública y portal privado
+## Web pública y dashboard inicial
 
-Todavía no se implementan pantallas. La organización prevista a futuro:
+Ya existen dos pantallas, ambas descriptas en detalle en
+[`dashboard.md`](./dashboard.md):
 
 ```text
-/mide                 → pública: qué es MIDE, MIDE Frío, MIDE Energía, futuros productos
+/mide                 → portada: qué es MIDE, MIDE Frío, MIDE Energía, futuros productos
+/mide/dashboard        → dashboard inicial/interno de mide-frio-001 (sin login todavía)
+```
+
+Organización prevista a futuro, todavía no implementada:
+
+```text
 /mide/login            → privada
-/mide/dashboard        → privada: estado, dispositivos, gráficos, eventos, config, alertas
 /mide/dispositivos     → privada
 /mide/eventos          → privada
 ```
@@ -127,7 +134,7 @@ POST /api/mide/event                           validado contra mide-frio-001
 Idempotencia de /api/mide/event                validada (constraint único + 23505)
 Atomicidad de /api/mide/report                 implementada mediante RPC mide_ingest_report
 Firmware ESP32 integrado con la nueva API      pendiente
-Dashboard MIDE                                 pendiente
+Dashboard MIDE (inicial/interno)               implementado — ver dashboard.md
 Usuarios / clientes / organizaciones           pendiente
 Planes y retención                             pendiente
 Autenticación individual por dispositivo / HMAC pendiente

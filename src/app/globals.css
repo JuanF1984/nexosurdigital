@@ -14,8 +14,16 @@
   --color-accent-blue: #4a6cf7;
   --color-whatsapp: #25d366;
 
+  /* MIDE status colors — additive, only used within /mide. Amber/rose instead
+     of a generic red so alerts read as part of the same warm dark palette. */
+  --color-mide-alert: #f2a93b;
+  --color-mide-offline: #ef5c5c;
+
   --font-display: "Instrument Serif", Georgia, serif;
   --font-body: "Sora", sans-serif;
+  /* Used only for MIDE readings/data (temperature, stats, timestamps) to give
+     telemetry an instrument feel, distinct from marketing copy. */
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 
 html,

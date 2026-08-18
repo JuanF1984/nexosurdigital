@@ -217,9 +217,11 @@ device_config    → SELECT
 
 Esto es intencional, no un descuido: `service_role` **no** tiene permiso de
 `SELECT` sobre `measurements` ni sobre `events`, porque ninguna ruta de
-`/api/mide/*` necesita leer esas tablas hoy (solo insertar). Si en el
-futuro se agrega, por ejemplo, un endpoint de lectura para el dashboard,
-ahí sí habrá que ampliar esos permisos — no antes.
+`/api/mide/*` necesita leer esas tablas hoy (solo insertar). El dashboard
+inicial (`/mide/dashboard`, ver [`dashboard.md`](./dashboard.md)) sí
+necesita leerlas — ese documento tiene el SQL mínimo (`grant select ...`)
+para aplicar a mano cuando se decida ampliar estos permisos; no se aplicó
+automáticamente desde acá.
 
 No hay acceso `anon`/`authenticated` todavía — eso solo tiene sentido
 cuando exista login de MIDE y un modelo de dueño (cliente/organización →
