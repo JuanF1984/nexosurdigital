@@ -144,8 +144,15 @@ export default function PrivacidadPage() {
       </h2>
       <p className="text-text-secondary text-sm font-light leading-relaxed mb-4">
         Si una persona desea solicitar la eliminación de información
-        asociada a nuestros servicios, puede comunicarse con Nexo Sur
-        indicando el número telefónico, correo electrónico u otro dato
+        asociada a nuestros servicios, puede comunicarse con Nexo Sur a
+        través de{" "}
+        <a
+          href="mailto:contacto@nexosurdigital.com.ar"
+          className="text-accent-blue hover:text-text-primary transition-colors"
+        >
+          contacto@nexosurdigital.com.ar
+        </a>
+        , indicando el número telefónico, correo electrónico u otro dato
         necesario para identificar la información correspondiente.
       </p>
 
@@ -178,7 +185,14 @@ export default function PrivacidadPage() {
       <p className="text-text-secondary text-sm font-light leading-relaxed">
         Para consultas relacionadas con privacidad o tratamiento de datos
         personales, utilizar los canales de contacto publicados oficialmente
-        por Nexo Sur en este sitio web.
+        por Nexo Sur en este sitio web, o escribir directamente a{" "}
+        <a
+          href="mailto:contacto@nexosurdigital.com.ar"
+          className="text-accent-blue hover:text-text-primary transition-colors"
+        >
+          contacto@nexosurdigital.com.ar
+        </a>
+        .
       </p>
     </section>
   );
