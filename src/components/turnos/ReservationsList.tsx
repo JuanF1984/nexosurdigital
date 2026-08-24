@@ -2,6 +2,7 @@ import type { SectionResult, TurnoRecord } from "@/lib/turnos/dashboard-data";
 import { formatFecha, formatHora } from "@/lib/turnos/format";
 import { ReservationStatusBadge } from "./ReservationStatusBadge";
 import { ChannelBadge } from "./ChannelBadge";
+import { CancelReservationButton } from "./CancelReservationButton";
 
 export function ReservationsList({ result }: { result: SectionResult<TurnoRecord[]> }) {
   if (!result.ok) {
@@ -44,6 +45,12 @@ export function ReservationsList({ result }: { result: SectionResult<TurnoRecord
             />
             <Field label="Fecha y hora" value={`${formatFecha(turno.fecha)} · ${formatHora(turno.horaInicio)}`} />
           </div>
+
+          {turno.estado === "confirmado" && (
+            <div className="mt-3 flex justify-end border-t border-white/5 pt-3">
+              <CancelReservationButton turnoId={turno.id} clienteNombre={turno.clienteNombre} />
+            </div>
+          )}
         </li>
       ))}
     </ul>

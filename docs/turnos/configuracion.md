@@ -21,6 +21,28 @@ Ninguna de las tres debe coincidir ni reutilizarse con `SUPABASE_URL` /
 `SUPABASE_SECRET_KEY` de MIDE — son proyectos de Supabase distintos. `.env.example`
 en la raíz del repo documenta esto mismo junto a las variables de MIDE.
 
+## Variables de la cancelación (backend `nexosur-turnos`)
+
+```text
+TURNOS_API_URL
+TURNOS_API_TOKEN
+```
+
+Distintas de las tres de arriba: no son de Supabase, son para llamar al
+backend HTTP separado `nexosur-turnos` (`POST /api/turnos/cancelar`). Ver
+`docs/turnos/cancelacion.md` para el detalle completo (flujo, por qué
+`TURNOS_API_TOKEN` no representa al usuario, y qué se prueba con cada una).
+
+| Variable | Uso | Dónde se lee |
+|---|---|---|
+| `TURNOS_API_URL` | URL base del deployment de `nexosur-turnos` | `src/lib/turnos/cancellation.ts` |
+| `TURNOS_API_TOKEN` | Secreto compartido (`Authorization: Bearer`), **debe coincidir** con `TURNOS_API_TOKEN` configurado en `nexosur-turnos` | `src/lib/turnos/cancellation.ts` |
+
+En Vercel: `vercel env add TURNOS_API_URL` y `vercel env add TURNOS_API_TOKEN`
+en el proyecto de `nexosur-web` — con el mismo valor de token que ya tenga
+(o se cargue) en el proyecto de Vercel de `nexosur-turnos`. Redeployar
+después de cargarlas.
+
 ## Configuración local
 
 Ya agregado a `.env.local` (gitignored) con valores vacíos:

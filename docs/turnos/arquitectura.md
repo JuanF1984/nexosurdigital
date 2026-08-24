@@ -51,7 +51,10 @@ genérico.
 
 - El dashboard **solo lee** `comercios`, `servicios`, `recursos` y `turnos`
   con el cliente service-role — nunca escribe en ninguna de esas tablas
-  (no hay cancelación, edición ni reprogramación en esta primera versión).
+  directamente. La única excepción es la cancelación de un turno
+  (`docs/turnos/cancelacion.md`), y ni siquiera ahí `nexosur-web` hace el
+  `UPDATE`: llama a `POST /api/turnos/cancelar` del backend `nexosur-turnos`,
+  que es quien de verdad escribe en `turnos.estado`.
 - La única tabla nueva que este trabajo agrega, `usuario_comercios`, es
   exclusiva del dashboard: el bot de WhatsApp no la lee ni la escribe, y no
   participa de su flujo de reservas en absoluto.
@@ -154,10 +157,18 @@ usuario_comercios (user_id, comercio_id, rol, created_at)
 
 Igual que `/mide/dashboard`: `/turnos/dashboard` es un Server Component que
 llama directamente a `getTurnosDashboardData()`, que a su vez usa
-`getTurnosSupabaseClient()`. No se creó ningún endpoint `/api/turnos/*` —
-hacerlo habría exigido diseñar autenticación para una API HTTP nueva sin
-necesidad real, cuando el acceso ya está resuelto por correr en el servidor
-con sesión verificada.
+`getTurnosSupabaseClient()`. No se creó ningún endpoint `/api/turnos/*` **en
+`nexosur-web`** — hacerlo habría exigido diseñar autenticación para una API
+HTTP nueva sin necesidad real, cuando el acceso ya está resuelto por correr
+en el servidor con sesión verificada.
+
+La única escritura del dashboard (cancelar una reserva) tampoco agrega un
+endpoint propio: es una Server Action (`src/app/turnos/dashboard/actions.ts`)
+que, tras validar autenticación y autorización acá, llama a un endpoint que
+**sí existe, pero en el otro proyecto** (`POST /api/turnos/cancelar` de
+`nexosur-turnos`). Ver `docs/turnos/cancelacion.md` para el flujo completo y
+la separación entre autenticación de usuario y autenticación
+backend-to-backend.
 
 `export const dynamic = "force-dynamic"` y `revalidate = 0` en la página,
 igual que en MIDE: un panel operativo de reservas no debe servir una foto
@@ -184,10 +195,9 @@ solo visual — ambas verifican contra Supabase Auth real.
 
 - Selector de comercio para un usuario con más de uno (hoy se toma el
   primero).
-- Cualquier acción de escritura (cancelar, reprogramar, editar servicios o
-  recursos): el dashboard es 100% de lectura en esta primera versión. Ver
-  `docs/turnos/dashboard.md#seguridad` para qué haría falta antes de agregar
-  la primera acción de escritura.
+- Cualquier acción de escritura más allá de cancelar (reprogramar, editar
+  servicios o recursos): cancelar una reserva ya está implementado, ver
+  `docs/turnos/cancelacion.md`.
 - Roles diferenciados dentro de un mismo comercio (columna `rol` sin uso
   todavía).
 - Recuperación de contraseña / invitación de usuarios nuevos por UI (hoy se

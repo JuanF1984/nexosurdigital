@@ -1,6 +1,60 @@
 # Estado del proyecto — Turnos (dashboard en `nexosur-web`)
 
-_Última actualización: 2026-08-23_
+_Última actualización: 2026-08-24_
+
+## Sesión 2026-08-24: cancelar reserva desde el dashboard
+
+Primera acción de escritura del dashboard. Documentación completa en
+`docs/turnos/cancelacion.md` — este apartado resume solo lo esencial para
+quien retome el proyecto.
+
+**Qué se implementó:**
+
+- `src/lib/turnos/cancellation.ts` (`getTurnoOwnership`, `cancelTurnoRemote`),
+  `src/app/turnos/dashboard/actions.ts` (`cancelReservationAction`, Server
+  Action), `src/components/turnos/CancelReservationButton.tsx` (Client
+  Component con confirmación y feedback).
+- `src/components/turnos/ReservationsList.tsx` modificado para mostrar el
+  botón solo en reservas `confirmado`.
+- Variables nuevas `TURNOS_API_URL` / `TURNOS_API_TOKEN` en `.env.example` y
+  `.env.local` (placeholders vacíos en ambos — sin valores reales cargados
+  en esta sesión).
+- Vitest agregado (`pnpm add -D vitest`, script `test`, `vitest.config.ts`
+  con el alias `@/*` de `tsconfig.json`) — el proyecto no tenía test runner
+  antes de esta sesión. 23 tests nuevos en
+  `src/lib/turnos/cancellation.test.ts` y
+  `src/app/turnos/dashboard/actions.test.ts`.
+
+**No se implementó (fuera de alcance explícito de esta sesión):** IA,
+reprogramación, reserva web/QR, recordatorios, selector de comercio,
+cualquier cambio en MIDE o en `nexosur-turnos`.
+
+**Verificado:** `pnpm test` (23/23), `pnpm exec tsc --noEmit` (limpio),
+`pnpm run lint` (0 errores), `pnpm run build` (compila; `/mide` y
+`/mide/dashboard` sin cambios en el listado de rutas). Se confirmó que
+`TURNOS_API_TOKEN` y la lógica de `cancellation.ts` no aparecen en
+`.next/static/*` tras el build.
+
+**Pendiente (bloqueante para probar en real):**
+
+1. Cargar `TURNOS_API_URL` y `TURNOS_API_TOKEN` reales en `.env.local` — el
+   valor de `TURNOS_API_TOKEN` debe ser **exactamente el mismo** que el
+   configurado en el proyecto `nexosur-turnos` (`Proyectos/whatsapp-demo` en
+   disco), o el backend rechazará todas las llamadas con `401`.
+2. Confirmar que `nexosur-turnos` tiene `TURNOS_API_TOKEN` cargado en su
+   propio entorno (según su `docs/estado-proyecto.md`, a la fecha de esa
+   documentación todavía no estaba cargado en Vercel).
+3. Probar el flujo real: cancelar una reserva de prueba desde
+   `/turnos/dashboard` y confirmar en la Supabase de Turnos que
+   `turnos.estado` pasó a `cancelado`.
+4. No se probó ningún escenario contra un backend real (todo lo cubierto por
+   los 23 tests usa mocks) — antes de considerar esto "probado en
+   producción", repetir al menos el caso de cancelación válida y el de
+   "backend no disponible" contra el deployment real de `nexosur-turnos`.
+
+**Próximo paso recomendado:** cargar las dos variables (local y en Vercel,
+ver `docs/turnos/configuracion.md`) y hacer la primera prueba end-to-end
+real antes de dar por cerrada esta funcionalidad.
 
 ## Incidente resuelto: 404 en `/turnos/login` bajo `pnpm dev`
 
@@ -204,9 +258,10 @@ desde el principio.
   Turnos (SQL en `docs/turnos/base-de-datos.md`) y dar de alta el primer
   usuario — sin esto, nadie puede entrar al dashboard todavía.
 - Selector de comercio para usuarios con más de uno asignado.
-- Cualquier acción de escritura (cancelar/reprogramar turnos, editar
-  servicios/recursos, configurar disponibilidad) — explícitamente pedido
-  fuera de alcance de esta primera versión.
+- Cancelar reserva ya está implementado (sesión 2026-08-24, ver arriba y
+  `docs/turnos/cancelacion.md`). Sigue pendiente cualquier otra acción de
+  escritura (reprogramar turnos, editar servicios/recursos, configurar
+  disponibilidad).
 - Roles diferenciados dentro de un mismo comercio (columna
   `usuario_comercios.rol` sin uso todavía más allá del valor por defecto).
 - Recuperación de contraseña / alta de usuarios por UI (hoy es 100% manual

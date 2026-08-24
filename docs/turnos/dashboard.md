@@ -1,6 +1,7 @@
 # Dashboard de Turnos
 
-**Estado: primera versión, solo lectura, privado.** A diferencia de
+**Estado: mayormente lectura, con una acción de escritura (cancelar
+reserva) agregada — ver `docs/turnos/cancelacion.md`.** A diferencia de
 `/mide/dashboard` (interno pero sin login), este dashboard **requiere
 autenticación siempre** porque muestra datos personales de clientes (nombre,
 teléfono).
@@ -141,21 +142,18 @@ visible en el encabezado del dashboard.
   selecciona `datos` (jsonb, que en `sesiones_whatsapp` incluye el nombre de
   perfil de WhatsApp) ni ninguna columna de `sesiones_whatsapp` — esa tabla
   ni se toca.
-- **Qué haría falta para agregar una acción de escritura (ej. cancelar un
-  turno):**
-  - Una Server Action propia (no un botón que llame a Supabase desde el
-    cliente), que repita `requireTurnosUser()` y verifique que el
-    `comercio_id` del turno a cancelar esté en la lista de
-    `getComerciosForUser(user.id)` **antes** de escribir — hoy ninguna
-    consulta de lectura depende de esa verificación por fila porque
-    `getTurnosDashboardData` ya recibe un `comercioId` pre-autorizado, pero
-    una acción de escritura que reciba un `turnoId` desde un formulario sí
-    necesita revalidar el dueño de ese turno server-side (nunca confiar en
-    que el cliente no manipuló el id).
-  - Revisar si conviene mover la cancelación a `lib/reservas/turnos.js` del
-    proyecto `whatsapp-demo` (ya pensado como "agnóstico de WhatsApp,
-    reutilizable" según su propia documentación) en vez de reimplementar la
-    lógica de negocio acá — evaluar sin tocar ese repo todavía.
-  - Un log de auditoría mínimo (quién canceló qué turno y cuándo) antes de
-    exponer la acción, dado que ahora sí habría escritura de datos de
-    clientes desde este dashboard.
+- **Primera acción de escritura: cancelar un turno.** Implementada como
+  Server Action (`src/app/turnos/dashboard/actions.ts`), no como un botón que
+  llame a Supabase desde el cliente. Repite `requireTurnosUser()` y verifica
+  que el `comercio_id` real del turno (leído server-side, nunca confiado del
+  cliente) esté en `getComerciosForUser(user.id)` **antes** de llamar al
+  backend. La cancelación real no se reimplementó acá: se consume
+  `POST /api/turnos/cancelar` del backend separado `nexosur-turnos`
+  (`cancelarTurno()`), autenticado backend-to-backend con `TURNOS_API_TOKEN`.
+  Ver `docs/turnos/cancelacion.md` para el flujo completo, las 10
+  validaciones cubiertas, y por qué `TURNOS_API_TOKEN` no sustituye la
+  autorización por usuario.
+- **Pendiente:** log de auditoría explícito (tabla propia con quién canceló
+  qué turno y cuándo) — hoy solo queda el registro implícito que ya hace
+  `nexosur-turnos` al actualizar `turnos.estado`, sin un log adicional en
+  `nexosur-web`.
