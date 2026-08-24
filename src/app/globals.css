@@ -19,6 +19,12 @@
   --color-mide-alert: #f2a93b;
   --color-mide-offline: #ef5c5c;
 
+  /* Turnos status color — additive, only used within /turnos. Confirmed
+     reuses the generic accent-green; this is only the "danger" half
+     (cancelado / errores de login), kept separate from mide-offline so the
+     two modules never share a token. */
+  --color-turnos-danger: #ef5c5c;
+
   --font-display: "Instrument Serif", Georgia, serif;
   --font-body: "Sora", sans-serif;
   /* Used only for MIDE readings/data (temperature, stats, timestamps) to give
