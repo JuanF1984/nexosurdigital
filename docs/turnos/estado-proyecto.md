@@ -1,6 +1,58 @@
 # Estado del proyecto — Turnos (dashboard en `nexosur-web`)
 
-_Última actualización: 2026-08-24_
+_Última actualización: 2026-08-28_
+
+> **MIGRADO (sesión 2026-08-28)**: el dashboard/login descrito en este
+> documento se movió a `turnos-web`
+> (`turnos.nexosurdigital.com.ar/login` y `/dashboard`) — ver
+> `turnos-web/docs/arquitectura.md` ("Dashboard") y ADR-002 en
+> `turnos-web/docs/decisiones.md` (ahora **RESUELTO**). El código de este
+> repo (`src/app/turnos/*`, `src/lib/turnos/*`, `src/components/turnos/*`)
+> **sigue existiendo**, sin borrar — queda inalcanzable vía un redirect
+> (`next.config.ts`: `/turnos/login` y `/turnos/dashboard` →
+> `turnos.nexosurdigital.com.ar`) mientras la nueva versión no esté
+> confirmada en producción. El resto de este documento describe el estado
+> **previo a la migración**, como referencia histórica — no se reescribió
+> retroactivamente.
+
+## Sesión 2026-08-28 — Migración a `turnos-web`
+
+**Qué se hizo desde este lado**: se revisó todo este directorio
+(`docs/turnos/*`) y el código real (`src/lib/turnos/*`,
+`src/app/turnos/**`, `src/components/turnos/**`, `src/proxy.ts`) como
+insumo para migrar a `turnos-web` — sin modificar ninguno de esos archivos.
+Se confirmó por búsqueda en todo `src/` que ningún nav/menú/componente fuera
+de `src/app/turnos/*`, `src/lib/turnos/*` y `src/components/turnos/*`
+linkeaba a `/turnos/login` o `/turnos/dashboard` (el único archivo que las
+mencionaba, fuera de esos tres directorios, era este mismo `src/proxy.ts`)
+— no hizo falta actualizar ningún otro lugar del sitio institucional.
+
+**Único cambio de código en este repo**: `next.config.ts` gana
+`redirects()` — `/turnos/login` → `https://turnos.nexosurdigital.com.ar/login`,
+`/turnos/dashboard` → `https://turnos.nexosurdigital.com.ar/dashboard`,
+ambos `permanent: false` (307) mientras la migración no esté confirmada en
+producción (un redirect permanente se cachearía agresivamente y sería más
+difícil de revertir si hiciera falta). El código viejo sigue compilando
+(`pnpm build` sigue listando `/turnos/dashboard` y `/turnos/login` en la
+tabla de rutas) — el redirect actúa en la capa de ruteo, antes de que esas
+páginas lleguen a renderizar, así que no hizo falta tocarlas ni borrarlas.
+
+**Verificado**: `pnpm test` (23/23, sin cambios — los tests de
+`cancellation.test.ts`/`actions.test.ts` siguen probando el código viejo,
+que sigue intacto), `pnpm build` (compila limpio, `/turnos/dashboard` y
+`/turnos/login` siguen en la tabla de rutas, `/mide`/`/mide/dashboard` sin
+cambios).
+
+**Pendiente**:
+
+1. Confirmar en producción que el login/dashboard nuevo en `turnos-web`
+   funciona correctamente (ver pendientes en `turnos-web/docs/estado-proyecto.md`).
+2. Recién después: cambiar los redirects acá a `permanent: true`, y evaluar
+   borrar `src/app/turnos/*`, `src/lib/turnos/*`, `src/components/turnos/*`
+   de este repo (no antes — pedido explícito de no eliminar código viejo sin
+   verificar la nueva versión primero).
+3. No se deployó nada de esta sesión — el redirect vive en el código, no en
+   Vercel, hasta que se decida desplegarlo.
 
 ## Sesión 2026-08-24: cancelar reserva desde el dashboard
 

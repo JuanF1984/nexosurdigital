@@ -1,9 +1,18 @@
 # Arquitectura de Turnos
 
+> **MIGRADO (sesión 2026-08-28)**: el dashboard/login descrito acá se movió
+> a `turnos-web` (`turnos.nexosurdigital.com.ar/login` y `/dashboard`) —
+> ver `turnos-web/docs/arquitectura.md` ("Dashboard") y
+> `docs/turnos/estado-proyecto.md` de este repo para el estado de la
+> migración. El código de este documento sigue existiendo en el repo, sin
+> borrar, pero queda inalcanzable por un redirect (`next.config.ts`)
+> mientras no se confirme la nueva versión en producción.
+
 > Este documento reemplaza a `arquitectura-propuesta.md` (mismo relevamiento
 > de MIDE, mismo criterio de separación) ahora que la primera versión del
 > dashboard está implementada. Describe lo que existe hoy en el código, no
-> una propuesta.
+> una propuesta. Se conserva sin reescribir como referencia de diseño para
+> la migración — ver la nota arriba.
 
 ## Qué es Turnos dentro de `nexosur-web`
 
