@@ -2,18 +2,100 @@
 
 _Última actualización: 2026-08-28_
 
-> **MIGRADO (sesión 2026-08-28)**: el dashboard/login descrito en este
-> documento se movió a `turnos-web`
+> **MIGRADO Y CÓDIGO LEGACY RETIRADO (sesiones 2026-08-28)**: el
+> dashboard/login descrito en este documento se movió a `turnos-web`
 > (`turnos.nexosurdigital.com.ar/login` y `/dashboard`) — ver
 > `turnos-web/docs/arquitectura.md` ("Dashboard") y ADR-002 en
-> `turnos-web/docs/decisiones.md` (ahora **RESUELTO**). El código de este
-> repo (`src/app/turnos/*`, `src/lib/turnos/*`, `src/components/turnos/*`)
-> **sigue existiendo**, sin borrar — queda inalcanzable vía un redirect
+> `turnos-web/docs/decisiones.md` (**RESUELTO Y CERRADO**). Confirmado el
+> funcionamiento en producción, el código de este repo
+> (`src/app/turnos/*`, `src/lib/turnos/*`, `src/components/turnos/*`,
+> `src/proxy.ts`) **ya se borró** — ver la sesión de retiro del código
+> legacy más abajo para el detalle completo. Los redirects
 > (`next.config.ts`: `/turnos/login` y `/turnos/dashboard` →
-> `turnos.nexosurdigital.com.ar`) mientras la nueva versión no esté
-> confirmada en producción. El resto de este documento describe el estado
-> **previo a la migración**, como referencia histórica — no se reescribió
+> `turnos.nexosurdigital.com.ar`) siguen activos y ahora son permanentes
+> (308). El resto de este documento describe el estado **previo a la
+> migración**, como referencia histórica — no se reescribió
 > retroactivamente.
+
+## Sesión 2026-08-28 (2) — Retiro del código legacy, migración cerrada
+
+**Contexto**: la migración (sesión anterior, más abajo) ya está desplegada
+y confirmada en producción — login y dashboard funcionando correctamente
+en `turnos.nexosurdigital.com.ar`. Esta sesión completa la migración
+borrando el código viejo, que hasta ahora seguía existiendo en este repo
+(solo inalcanzable por el redirect).
+
+**Revisión previa a borrar** (sin asumir nada):
+
+1. Se identificaron todos los archivos exclusivos del dashboard/login:
+   `src/app/turnos/**` (8 archivos: layout, login/{page,actions}, dashboard/{page,actions,loading,error,actions.test}),
+   `src/components/turnos/**` (7 componentes: TurnosTopBar, SignOutButton,
+   ReservationsSummary, ReservationsList, ReservationStatusBadge,
+   ChannelBadge, CancelReservationButton), `src/lib/turnos/**` (8 archivos:
+   auth, authorization, cancellation+test, dashboard-data, format,
+   supabase, supabase-auth), y `src/proxy.ts` (raíz).
+2. Se verificó por `grep` que **ningún archivo fuera de esos tres
+   directorios** importa nada de `@/lib/turnos/*`, `@/components/turnos/*`
+   ni `@/app/turnos/*` — cero consumidores externos, seguro borrar los
+   tres árboles completos.
+3. Se distinguió específicamente código compartido de código exclusivo en
+   dos casos que sí necesitaban revisión:
+   - **`src/proxy.ts`**: su `matcher` (`["/turnos/:path*"]`) solo cubría
+     rutas de Turnos; MIDE nunca tuvo login/middleware propio (documentado
+     desde el diseño original). Sin otro consumidor — se borró entero.
+   - **Tokens de `globals.css`**: `--color-turnos-danger` no tenía ningún
+     uso fuera de los tres directorios de Turnos — se borró. `--color-whatsapp`,
+     en cambio, **se conservó**: además de `ChannelBadge.tsx` (Turnos, ya
+     borrado), lo usa `src/components/landing/CTA.tsx` — el botón real de
+     "hablanos por WhatsApp" de la landing institucional. Borrarlo habría
+     roto un elemento visual de la página principal del sitio, sin relación
+     con Turnos.
+   - **`@supabase/ssr`** (dependencia de npm): usada únicamente por
+     `src/lib/turnos/supabase-auth.ts` y `src/proxy.ts` — ambos borrados, sin
+     otro consumidor. Se removió con `pnpm remove @supabase/ssr`.
+
+**Borrado** (`git rm`): `src/app/turnos/` (directorio completo),
+`src/components/turnos/` (directorio completo), `src/lib/turnos/`
+(directorio completo), `src/proxy.ts`.
+
+**Modificado**: `src/app/globals.css` (quitado `--color-turnos-danger`,
+conservado `--color-whatsapp`), `package.json`/`pnpm-lock.yaml` (quitado
+`@supabase/ssr`), `next.config.ts` (redirects: `permanent: false` →
+`permanent: true` — ver razonamiento en el archivo), `.env.example`
+(comentario nuevo marcando las cinco variables de Turnos como sin código
+que las lea, sin borrar las líneas).
+
+**Verificado**:
+
+- `pnpm test` → "No test files found" (**esperado, no un problema**: los
+  únicos dos archivos de test que tenía este repo,
+  `cancellation.test.ts` y `dashboard/actions.test.ts`, probaban
+  exclusivamente el código que se acaba de borrar).
+- `pnpm lint` → 0 errores (3 warnings preexistentes sin relación,
+  `no-page-custom-font` y `no-img-element` en componentes de landing/MIDE).
+- `pnpm build` → compila limpio. Tabla de rutas ya sin
+  `/turnos/dashboard`/`/turnos/login` ni "Proxy (Middleware)" (confirma que
+  `src/proxy.ts` era el único middleware del proyecto). `/`, `/mide`,
+  `/mide/dashboard`, `/privacidad`, `/api/*` sin cambios.
+- **Redirects reales** (`pnpm start` + `curl`): `/turnos/login` →
+  `308` → `https://turnos.nexosurdigital.com.ar/login`;
+  `/turnos/dashboard` → `308` → `.../dashboard`. Ambos funcionan sin que
+  exista ningún archivo de página detrás — `redirects()` de Next.js actúa
+  por path, no por la existencia de un archivo.
+- **Token compartido preservado**: verificado que `bg-whatsapp` sigue
+  presente en el HTML de `/` y que `--color-whatsapp` sigue compilado en el
+  CSS final.
+
+**Variables de entorno sin código que las lea** (no tocadas en Vercel, ni
+borradas de `.env.example`/`.env.local` — decisión explícita del usuario,
+pendiente de decidir en una limpieza posterior):
+`TURNOS_SUPABASE_URL`, `TURNOS_SUPABASE_ANON_KEY`,
+`TURNOS_SUPABASE_SECRET_KEY`, `TURNOS_API_URL`, `TURNOS_API_TOKEN`.
+Confirmado con `grep -rn "TURNOS_" src/ next.config.ts` sin resultados.
+
+**Pendiente**: ninguno bloqueante. Si en algún momento se decide retirar
+las cinco variables de Vercel, es seguro hacerlo — no queda ningún código
+en este repo que las use.
 
 ## Sesión 2026-08-28 — Migración a `turnos-web`
 
@@ -43,16 +125,10 @@ que sigue intacto), `pnpm build` (compila limpio, `/turnos/dashboard` y
 `/turnos/login` siguen en la tabla de rutas, `/mide`/`/mide/dashboard` sin
 cambios).
 
-**Pendiente**:
-
-1. Confirmar en producción que el login/dashboard nuevo en `turnos-web`
-   funciona correctamente (ver pendientes en `turnos-web/docs/estado-proyecto.md`).
-2. Recién después: cambiar los redirects acá a `permanent: true`, y evaluar
-   borrar `src/app/turnos/*`, `src/lib/turnos/*`, `src/components/turnos/*`
-   de este repo (no antes — pedido explícito de no eliminar código viejo sin
-   verificar la nueva versión primero).
-3. No se deployó nada de esta sesión — el redirect vive en el código, no en
-   Vercel, hasta que se decida desplegarlo.
+**Pendiente (resuelto en la sesión de retiro del código legacy, arriba)**:
+en su momento, esta sesión dejó pendiente confirmar producción antes de
+borrar el código viejo y pasar los redirects a permanentes — ambas cosas
+ya se hicieron, ver la sesión de arriba.
 
 ## Sesión 2026-08-24: cancelar reserva desde el dashboard
 

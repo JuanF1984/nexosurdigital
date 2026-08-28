@@ -1,10 +1,12 @@
 # Dashboard de Turnos
 
-> **MIGRADO (sesión 2026-08-28)**: ver la nota en `docs/turnos/arquitectura.md`.
-> El dashboard descrito acá ahora vive en `turnos-web`
-> (`turnos.nexosurdigital.com.ar/login` y `/dashboard`), con una mejora de
-> UX (secciones Hoy/Próximas/Pasadas/Canceladas en vez de una lista única)
-> — ver `turnos-web/docs/arquitectura.md`, "Dashboard".
+> **MIGRADO Y CÓDIGO RETIRADO (sesiones 2026-08-28)**: ver la nota en
+> `docs/turnos/arquitectura.md`. El dashboard descrito acá ahora vive en
+> `turnos-web` (`turnos.nexosurdigital.com.ar/login` y `/dashboard`), con
+> una mejora de UX (secciones Hoy/Próximas/Pasadas/Canceladas en vez de una
+> lista única, y su propio ajuste responsive para mobile) — ver
+> `turnos-web/docs/arquitectura.md`, "Dashboard". El código descrito en
+> este documento ya no existe en este repo.
 
 **Estado: mayormente lectura, con una acción de escritura (cancelar
 reserva) agregada — ver `docs/turnos/cancelacion.md`.** A diferencia de

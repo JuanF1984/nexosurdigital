@@ -1,32 +1,35 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Migración del dashboard/login de Turnos a turnos-web (sesión de
-  // migración — ver docs/turnos/estado-proyecto.md y ADR-002 en
-  // turnos-web/docs/decisiones.md). El código de /turnos/login y
-  // /turnos/dashboard sigue existiendo en este repo (deliberadamente, no se
-  // borró todavía — ver esa misma documentación para el porqué), pero
-  // queda inalcanzable mientras este redirect esté activo: Next.js aplica
-  // `redirects()` en la capa de ruteo, antes de renderizar la página real.
+  // Migración del dashboard/login de Turnos a turnos-web — COMPLETA (sesión
+  // de retiro del código legacy). Ver docs/turnos/estado-proyecto.md y
+  // ADR-002 en turnos-web/docs/decisiones.md. El código de /turnos/login y
+  // /turnos/dashboard (páginas, actions, componentes, libs, src/proxy.ts)
+  // ya NO existe en este repo — se borró en esta sesión, después de
+  // confirmar la nueva versión funcionando en producción
+  // (turnos.nexosurdigital.com.ar). Estos redirects son ahora la única
+  // referencia a esas rutas que queda en el código.
   //
-  // `permanent: false` (307) a propósito, no 308: mientras la migración no
-  // esté confirmada en producción (login real + dashboard real verificados
-  // contra turnos.nexosurdigital.com.ar), un redirect permanente quedaría
-  // cacheado agresivamente por navegadores/CDNs y sería más difícil de
-  // revertir si hiciera falta. Cambiar a `permanent: true` (y recién
-  // entonces evaluar borrar /turnos/login, /turnos/dashboard y sus módulos
-  // de src/lib/turnos/*) es el paso siguiente, no parte de esta sesión.
+  // `permanent: true` (308) — cambiado de `false` (307) ahora que la
+  // migración está confirmada en producción y el código viejo ya no existe:
+  // no hay ninguna razón técnica para seguir tratando esto como temporal
+  // (no hay a qué "revertir" — el código de origen fue borrado), y un
+  // redirect permanente es lo correcto para una URL que se movió
+  // definitivamente (mejor cacheable por navegadores/CDNs/buscadores, sin
+  // costo real porque no se espera volver a servir estas rutas desde acá).
+  // Nota: estos `redirects()` funcionan por PATH, no por la existencia de
+  // un archivo de página — siguen andando igual sin `src/app/turnos/*`.
   async redirects() {
     return [
       {
         source: "/turnos/login",
         destination: "https://turnos.nexosurdigital.com.ar/login",
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/turnos/dashboard",
         destination: "https://turnos.nexosurdigital.com.ar/dashboard",
-        permanent: false,
+        permanent: true,
       },
     ];
   },

@@ -1,18 +1,22 @@
 # Arquitectura de Turnos
 
-> **MIGRADO (sesión 2026-08-28)**: el dashboard/login descrito acá se movió
-> a `turnos-web` (`turnos.nexosurdigital.com.ar/login` y `/dashboard`) —
-> ver `turnos-web/docs/arquitectura.md` ("Dashboard") y
-> `docs/turnos/estado-proyecto.md` de este repo para el estado de la
-> migración. El código de este documento sigue existiendo en el repo, sin
-> borrar, pero queda inalcanzable por un redirect (`next.config.ts`)
-> mientras no se confirme la nueva versión en producción.
+> **MIGRADO Y CÓDIGO RETIRADO (sesiones 2026-08-28)**: el dashboard/login
+> descrito acá se movió a `turnos-web`
+> (`turnos.nexosurdigital.com.ar/login` y `/dashboard`) — ver
+> `turnos-web/docs/arquitectura.md` ("Dashboard") y
+> `docs/turnos/estado-proyecto.md` de este repo para el detalle completo.
+> **El código descrito en este documento ya no existe en el repo** —
+> `src/app/turnos/*`, `src/lib/turnos/*`, `src/components/turnos/*` y
+> `src/proxy.ts` se borraron una vez confirmada la nueva versión en
+> producción. `/turnos/login` y `/turnos/dashboard` siguen respondiendo,
+> como redirects permanentes (308) hacia `turnos.nexosurdigital.com.ar`
+> (`next.config.ts`), no como páginas reales.
 
 > Este documento reemplaza a `arquitectura-propuesta.md` (mismo relevamiento
 > de MIDE, mismo criterio de separación) ahora que la primera versión del
-> dashboard está implementada. Describe lo que existe hoy en el código, no
-> una propuesta. Se conserva sin reescribir como referencia de diseño para
-> la migración — ver la nota arriba.
+> dashboard está implementada. Describe lo que existía en el código antes
+> de la migración, no el estado actual — se conserva sin reescribir como
+> referencia histórica de diseño.
 
 ## Qué es Turnos dentro de `nexosur-web`
 
