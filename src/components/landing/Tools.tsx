@@ -122,7 +122,7 @@ export function Tools() {
 
         <div className="flex flex-wrap justify-center gap-3">
           <a
-            href="https://turnos.nexosurdigital.com.ar/demo-reservas-nexo-sur"
+            href="https://turnos.nexosurdigital.com.ar/demo/cliente"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-11 items-center justify-center bg-accent-blue text-white py-3 px-7 rounded-full text-sm sm:text-base font-semibold no-underline transition-all hover:-translate-y-0.5 active:scale-95 shadow-[0_4px_24px_rgba(74,108,247,0.25)] hover:shadow-[0_8px_32px_rgba(74,108,247,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-deep"
