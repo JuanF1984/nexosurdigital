@@ -100,6 +100,49 @@ export function Tools() {
           </p>
         </div>
       </div>
+
+      {/* CTAs de Turnos (sesión "Cerrar la etapa"): Turnos ya es un producto
+          real, no solo la maqueta de arriba — esto conecta esa maqueta con
+          el producto funcionando. Jerarquía deliberada, no "tres botones
+          sueltos": principal (sólido, probar como cliente) vs. secundaria
+          (contorno, ver el panel del comercio) — mismo lenguaje de pill
+          button que ya usa el resto del sitio (Hero/CTA), con accent-blue
+          en vez de gradient-bg/whatsapp para que se lea como "vas hacia el
+          producto Turnos", distinto de "contactanos". El acceso de cliente
+          existente ("Ingresar al panel") vive en el Footer, ver
+          Footer.tsx — ahí es donde ya viven los links de menor jerarquía
+          del sitio. target="_blank": se sale del dominio institucional
+          hacia la app real (turnos.nexosurdigital.com.ar), mismo criterio
+          que ya usan los links de WhatsApp/Instagram del Footer para
+          destinos externos. */}
+      <div className="mt-14 flex flex-col items-center gap-4">
+        <p className="text-text-secondary text-sm font-light max-w-[420px] mx-auto">
+          Turnos ya está funcionando. Probalo vos mismo.
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-3">
+          <a
+            href="https://turnos.nexosurdigital.com.ar/demo-reservas-nexo-sur"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center justify-center bg-accent-blue text-white py-3 px-7 rounded-full text-sm sm:text-base font-semibold no-underline transition-all hover:-translate-y-0.5 active:scale-95 shadow-[0_4px_24px_rgba(74,108,247,0.25)] hover:shadow-[0_8px_32px_rgba(74,108,247,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-deep"
+          >
+            Probar como cliente
+          </a>
+          <a
+            href="https://turnos.nexosurdigital.com.ar/demo/dashboard"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center justify-center border border-white/15 text-text-primary py-3 px-7 rounded-full text-sm sm:text-base font-semibold no-underline transition-all hover:-translate-y-0.5 hover:border-accent-blue/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-deep"
+          >
+            Ver panel del comercio
+          </a>
+        </div>
+
+        <p className="text-text-dim text-xs max-w-[380px] mx-auto">
+          Sirve para cualquier rubro: en el panel demo podés elegir entre restaurante y peluquería.
+        </p>
+      </div>
     </section>
   );
 }

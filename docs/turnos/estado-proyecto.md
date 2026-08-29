@@ -17,6 +17,133 @@ _Última actualización: 2026-08-28_
 > migración**, como referencia histórica — no se reescribió
 > retroactivamente.
 
+## Sesión 2026-08-28 (3) — Conectar la landing institucional con el producto Turnos real
+
+**Contexto**: hasta esta sesión, `nexosur-web` mencionaba Turnos únicamente
+como una maqueta de presentación (`src/components/landing/Tools.tsx`, un
+mini-calendario ficticio sin ningún link) — el producto real ya vive del
+todo en `turnos-web` (login/dashboard migrados y cerrados, ver sesión (2)
+arriba; dos comercios demo reales, restaurante y peluquería; dashboard
+demo público sin backend en `/demo/dashboard`). Objetivo: conectar la
+landing con el producto real mediante CTAs, sin rediseñar la landing ni
+tocar lógica/Supabase/auth de ningún lado. Detalle completo de la
+implementación (Part 1, corrección de cancelación de turnos pasados) en
+`turnos-web/docs/decisiones.md`, ADR-011.
+
+**Análisis previo** (sin tocar código): revisada la landing completa
+(`Hero`, `Services`, `Tools`, `VideoDemo`, `WebShowcase`, `Trust`, `FAQ`,
+`CTA`, `Navbar`, `Footer`) y `globals.css`. Hallazgos relevantes:
+
+- `Tools.tsx` ya muestra un mockup de "Turnos" (calendario + horarios +
+  botón "Reservar") — rubro-neutral, sin ningún texto ni imagen
+  gastronómica — pero **sin ningún link real**, es pura ilustración.
+- `Trust.tsx` ya lista explícitamente "Barberías, Salud, Gastronomía,
+  Comercios, Oficios" como los rubros atendidos — la landing YA se
+  presenta como multi-rubro a nivel de mensaje, independientemente de
+  Turnos.
+- El video existente (`VideoDemo.tsx`, `/videos/auto_wp.mp4`) demuestra un
+  **bot de WhatsApp para un rubro "auto"** (taller/afín) — no es sobre
+  Turnos ni sobre reservas online, y no es gastronómico tampoco. Es un
+  video de un producto/canal distinto (WhatsApp), ubicado cerca de las
+  secciones de Turnos en el orden de la página. No se tocó (pedido
+  explícito: no hacía falta rehacerlo en esta sesión) — documentado como
+  inconsistencia de asociación de producto, no de rubro.
+- Paleta y componentes ya comparten tokens con `turnos-web`
+  (`--color-accent-blue`, `--color-accent-green`, `--color-deep`, etc.) —
+  mismo sistema de diseño, dos repos.
+- Patrón de botón ya establecido: pill (`rounded-full`), semibold, hover
+  con `-translate-y-0.5` + sombra de color, dos "sabores" existentes
+  (`gradient-bg` para "contacto", `bg-whatsapp` para WhatsApp) — ningún
+  "sabor" propio para "ir al producto".
+
+**`frontend-design`**: cargado para decidir jerarquía/ubicación/cantidad de
+texto — no se corrió el ritual completo de ideación de marca (paleta,
+tipografía, "elemento firma"), porque `nexosur-web` ya tiene una identidad
+visual asentada y el pedido era integrar, no rediseñar (mismo criterio ya
+aplicado en las sesiones de pulido de `turnos-web`). Se aplicó el "piso de
+calidad" (jerarquía real, foco visible, restricción, mobile) y la guía de
+escritura (voz activa, nombrar lo que la persona va a hacer/ver, sin
+copy de más).
+
+**Decisión de ubicación**: en vez de un bloque nuevo, se extendió
+`Tools.tsx` (justo debajo de las dos cards existentes, dentro de la misma
+`<section id="herramientas">`) con una línea corta + dos CTAs + una
+aclaración de rubro — la maqueta de Turnos ahora termina en "esto es de
+verdad, probalo". El acceso de cliente existente ("Ingresar al panel") se
+agregó al `Footer.tsx`, como un cuarto link en la fila que ya existe
+(WhatsApp | Email | Instagram) — misma jerarquía visual que ya usa esa
+fila para accesos secundarios, evitando "tres botones sueltos con el mismo
+peso".
+
+**Jerarquía final**:
+
+1. **"Probar como cliente"** (`bg-accent-blue`, pill sólido) →
+   `https://turnos.nexosurdigital.com.ar/demo-reservas-nexo-sur` — CTA
+   principal, mismo peso visual que el resto de los CTA pill del sitio,
+   color propio (accent-blue, no gradient-bg/whatsapp) para leerse como
+   "vas hacia el producto Turnos", distinto de "contactanos".
+2. **"Ver panel del comercio"** (borde, sin relleno) →
+   `https://turnos.nexosurdigital.com.ar/demo/dashboard` — secundaria,
+   mismo pill pero sin fondo.
+3. **"Ingresar al panel"** (link de texto en el Footer) →
+   `https://turnos.nexosurdigital.com.ar/login` — la menos prominente,
+   pensada para quien YA es cliente, no para convencer a alguien nuevo.
+
+**Copy**: no se copiaron los textos conceptuales del pedido tal cual. "Probar
+como cliente" / "Ver panel del comercio" nombran explícitamente DESDE QUÉ
+LADO se va a ver el producto (cliente vs. comercio) — más específico que
+"Probar Turnos" / "Ver panel demo", y arma un par con estructura paralela
+que por sí solo comunica "hay dos perspectivas para probar". Se agregó una
+aclaración corta de una línea ("Sirve para cualquier rubro: en el panel
+demo podés elegir entre restaurante y peluquería.") para no dejar la
+sección leyéndose como exclusivamente gastronómica, atada al lugar
+concreto donde eso es demostrable (el selector real del panel demo), no
+como una afirmación abstracta.
+
+**Multi-rubro — limitación reconocida, no resuelta**: el CTA principal
+apunta al comercio demo de **restaurante** (dado así por el pedido). Como
+`Trust.tsx` (que sí transmite "multi-rubro") aparece MÁS ABAJO en la
+página que `Tools.tsx`, alguien que solo mire hasta ahí podría leer "Turnos
+= reservas de restaurante". Mitigado parcialmente por la leyenda agregada
+y por el CTA secundario (que sí muestra el selector real
+Restaurante/Peluquería) — resolverlo del todo implicaría reordenar
+secciones de la landing o agregar un selector de rubro al CTA, fuera de
+alcance explícito ("no rediseñar la landing"). Documentado para una futura
+sesión.
+
+**Hallazgo de accesibilidad, documentado y no corregido**: `Hero.tsx` (CTA
+"Contanos tu caso") y `CTA.tsx` (CTA "Escribir por WhatsApp") no tienen
+ningún estilo de foco visible — `CTA.tsx` incluso usa `outline-none` sin
+ningún reemplazo. `VideoDemo.tsx` sí lo hace bien
+(`focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2`).
+Los dos CTAs nuevos de esta sesión siguen el patrón correcto de
+`VideoDemo.tsx`. No se tocaron `Hero.tsx`/`CTA.tsx` — son botones
+preexistentes, ninguno de los dos formaba parte del pedido de esta sesión
+— queda como mejora futura.
+
+**Archivos modificados**: `src/components/landing/Tools.tsx`,
+`src/components/layout/Footer.tsx`. Nada más — ni lógica, ni Supabase, ni
+auth, ni APIs, ni WhatsApp, ni el layout general de la landing.
+
+**Verificación**: `pnpm lint` limpio (0 errores; 3 warnings preexistentes
+en archivos no tocados). No hay tests en este repo (`pnpm test` sale con
+"No test files found", esperable). `pnpm build` limpio (typecheck incluido
+en el build de Next). Verificado con `curl` contra `pnpm dev`: los 3
+destinos resuelven exactamente a las URLs pedidas, el copy renderiza
+correcto. CSS compilado confirmado (`bg-accent-blue`, `min-h-11`,
+`focus-visible:ring-2`, `rounded-full`) — sin navegador conectado en esta
+sesión (mismo límite que todo el resto de esta conversación).
+
+**Decisión de `target="_blank"`**: los 3 links nuevos abren en pestaña
+nueva — mismo criterio que ya usan los links de WhatsApp/Instagram del
+Footer para destinos externos (la landing institucional y Turnos son
+apps/dominios distintos); mantiene la landing abierta para que la persona
+pueda seguir leyendo o llegar al CTA de contacto de más abajo.
+
+**Próximo paso**: ninguno pendiente de esta integración puntual — la
+decisión de reordenar secciones de la landing o de rehacer el video queda
+para una sesión futura, si se decide encararla.
+
 ## Sesión 2026-08-28 (2) — Retiro del código legacy, migración cerrada
 
 **Contexto**: la migración (sesión anterior, más abajo) ya está desplegada

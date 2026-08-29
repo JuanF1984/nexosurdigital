@@ -48,6 +48,29 @@ export function Footer() {
           </svg>
           @nexosur.digital
         </a>
+
+        <span className="text-text-dim">|</span>
+
+        {/* Acceso de cliente existente (sesión "Cerrar la etapa") — menor
+            jerarquía a propósito: vive acá, no en el cuerpo de la landing,
+            porque es una utilidad para quien YA es cliente de Turnos, no
+            un CTA para convencer a alguien nuevo (esos viven en Tools.tsx,
+            ver ADR de nexosur-web en docs/). */}
+        <a
+          href="https://turnos.nexosurdigital.com.ar/login"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-text-secondary text-sm hover:text-text-primary transition-colors no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 focus-visible:ring-offset-deep rounded-sm"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+            <path
+              fillRule="evenodd"
+              d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Ingresar al panel
+        </a>
       </div>
 
       <p className="text-text-dim text-xs">
