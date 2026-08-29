@@ -1,0 +1,200 @@
+### E02  (pequenos)   19/08 21:42  |  pico avg -14.89 C (max -14.06)  |  dur 5 min
+21:37  (aprox) cruza -15 C   [prev -19.96 C]
+21:42  -14.89 C  (+ 0.1)  tend=ASC   <- PICO -14.89 C
+21:47  vuelve a rango (<= -15 C)
+
+### E10  (pequenos)   23/08 06:43  |  pico avg -14.88 C (max -14.75)  |  dur 10 min
+06:38  (aprox) cruza -15 C   [prev -15.08 C]
+06:43  -14.97 C  (+ 0.0)  tend=ASC   
+06:48  -14.88 C  (+ 0.1)  tend=EST   <- PICO -14.88 C
+06:53  vuelve a rango (<= -15 C)
+
+### E12  (pequenos)   23/08 10:13  |  pico avg -14.88 C (max -14.75)  |  dur 10 min
+10:08  (aprox) cruza -15 C   [prev -15.11 C]
+10:13  -14.97 C  (+ 0.0)  tend=ASC   
+10:18  -14.88 C  (+ 0.1)  tend=EST   <- PICO -14.88 C
+10:23  vuelve a rango (<= -15 C)
+
+### E05  (autolimitados_recuperados)   22/08 07:37  |  pico avg -14.41 C (max -14.31)  |  dur 40 min
+07:32  (aprox) cruza -15 C   [prev -15.10 C]
+07:37  -15.00 C  (+ 0.0)  tend=ASC   
+07:42  -14.90 C  (+ 0.1)  tend=EST   
+07:47  -14.81 C  (+ 0.2)  tend=EST   
+07:52  -14.71 C  (+ 0.3)  tend=EST   ALARMA: A_solo_tiempo, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+07:57  -14.63 C  (+ 0.4)  tend=EST   ALARMA: D_dinamica_k2_T20
+08:02  -14.54 C  (+ 0.5)  tend=EST   
+08:07  -14.46 C  (+ 0.5)  tend=EST   ALARMA: B_tiempo_tendencia, C_bandas_15_10_5, C_bandas_15_8_0
+08:12  -14.41 C  (+ 0.6)  tend=EST   <- PICO -14.41 C
+08:17  vuelve a rango (<= -15 C)
+
+### E07  (autolimitados_recuperados)   22/08 12:08  |  pico avg -13.80 C (max -13.75)  |  dur 60 min
+12:03  (aprox) cruza -15 C   [prev -15.14 C]
+12:08  -14.96 C  (+ 0.0)  tend=ASC   
+12:13  -14.81 C  (+ 0.2)  tend=EST   
+12:18  -14.66 C  (+ 0.3)  tend=EST   
+12:23  -14.52 C  (+ 0.5)  tend=EST   ALARMA: A_solo_tiempo, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+12:28  -14.40 C  (+ 0.6)  tend=EST   ALARMA: D_dinamica_k2_T20
+12:33  -14.28 C  (+ 0.7)  tend=EST   
+12:38  -14.16 C  (+ 0.8)  tend=EST   ALARMA: B_tiempo_tendencia, C_bandas_15_10_5, C_bandas_15_8_0
+12:43  -14.06 C  (+ 0.9)  tend=EST   
+12:48  -13.96 C  (+ 1.0)  tend=EST   
+12:53  -13.85 C  (+ 1.2)  tend=EST   
+12:58  -13.80 C  (+ 1.2)  tend=EST   <- PICO -13.80 C
+13:03  -14.43 C  (+ 0.6)  tend=DESC  
+13:08  vuelve a rango (<= -15 C)
+
+### E11  (autolimitados_recuperados)   23/08 08:33  |  pico avg -14.54 C (max -14.44)  |  dur 25 min
+08:28  (aprox) cruza -15 C   [prev -15.05 C]
+08:33  -14.95 C  (+ 0.0)  tend=ASC   
+08:38  -14.85 C  (+ 0.2)  tend=EST   
+08:43  -14.75 C  (+ 0.3)  tend=EST   
+08:48  -14.65 C  (+ 0.3)  tend=EST   ALARMA: A_solo_tiempo, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+08:53  -14.54 C  (+ 0.5)  tend=EST   <- PICO -14.54 C ALARMA: D_dinamica_k2_T20
+08:58  vuelve a rango (<= -15 C)
+
+### E06  (cerca_de_-13)   22/08 09:42  |  pico avg -13.32 C (max -13.25)  |  dur 90 min
+09:37  (aprox) cruza -15 C   [prev -15.03 C]
+09:42  -14.90 C  (+ 0.1)  tend=ASC   
+09:47  -14.75 C  (+ 0.2)  tend=EST   
+09:52  -14.62 C  (+ 0.4)  tend=EST   
+09:57  -14.49 C  (+ 0.5)  tend=EST   ALARMA: A_solo_tiempo, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+10:02  -14.37 C  (+ 0.6)  tend=EST   ALARMA: D_dinamica_k2_T20
+10:07  -14.26 C  (+ 0.7)  tend=EST   
+10:12  -14.15 C  (+ 0.8)  tend=EST   ALARMA: B_tiempo_tendencia, C_bandas_15_10_5, C_bandas_15_8_0
+10:18  -14.04 C  (+ 1.0)  tend=EST   
+10:23  -13.95 C  (+ 1.0)  tend=EST   
+10:28  -13.85 C  (+ 1.2)  tend=EST   
+10:33  -13.76 C  (+ 1.2)  tend=EST   
+10:38  -13.67 C  (+ 1.3)  tend=EST   
+10:43  -13.58 C  (+ 1.4)  tend=EST   
+10:48  -13.49 C  (+ 1.5)  tend=EST   
+10:53  -13.40 C  (+ 1.6)  tend=EST   
+10:58  -13.32 C  (+ 1.7)  tend=EST   <- PICO -13.32 C
+11:03  -13.38 C  (+ 1.6)  tend=EST   
+11:08  -14.36 C  (+ 0.6)  tend=DESC  
+11:13  vuelve a rango (<= -15 C)
+
+### E08  (cerca_de_-13)   22/08 13:48  |  pico avg -13.02 C (max -12.25)  |  dur 15 min
+13:43  (aprox) cruza -15 C   [prev -15.14 C]
+13:48  -13.18 C  (+ 1.8)  tend=ASC   
+13:53  -13.02 C  (+ 2.0)  tend=ASC   <- PICO -13.02 C
+13:58  -13.47 C  (+ 1.5)  tend=EST   ALARMA: D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+14:03  vuelve a rango (<= -15 C)
+
+### E22  (cerca_de_-13)   24/08 14:58  |  pico avg -13.59 C (max -13.50)  |  dur 30 min
+14:53  (aprox) cruza -15 C   [prev -15.06 C]
+14:58  -14.72 C  (+ 0.3)  tend=ASC   
+15:03  -14.40 C  (+ 0.6)  tend=ASC   
+15:08  -14.10 C  (+ 0.9)  tend=ASC   
+15:13  -13.81 C  (+ 1.2)  tend=ASC   ALARMA: A_solo_tiempo, B_tiempo_tendencia, C_bandas_15_10_5, C_bandas_15_8_0, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+15:18  -13.59 C  (+ 1.4)  tend=ASC   <- PICO -13.59 C ALARMA: D_dinamica_k2_T20
+15:23  -14.34 C  (+ 0.7)  tend=DESC  
+15:28  vuelve a rango (<= -15 C)
+
+### E01  (cerca_de_-10)   19/08 14:12  |  pico avg -9.78 C (max -9.56)  |  dur 25 min
+14:07  (aprox) cruza -15 C   [prev -15.99 C]
+14:12  -13.82 C  (+ 1.2)  tend=ASC   
+14:17  -11.79 C  (+ 3.2)  tend=ASC   
+14:22   -9.78 C  (+ 5.2)  tend=ASC   <- PICO -9.78 C ALARMA: C_bandas_15_10_5, C_bandas_15_8_0, D_dinamica_k3_T15, D_dinamica_k2_T20, D_dinamica_k3_T15_sinRec
+14:27  -11.36 C  (+ 3.6)  tend=EST   ALARMA: A_solo_tiempo
+14:32  -14.21 C  (+ 0.8)  tend=DESC  
+14:37  vuelve a rango (<= -15 C)
+
+### E03  (cerca_de_-10)   20/08 13:32  |  pico avg -10.90 C (max -10.75)  |  dur 30 min
+13:27  (aprox) cruza -15 C   [prev -15.29 C]
+13:32  -14.24 C  (+ 0.8)  tend=ASC   
+13:37  -13.01 C  (+ 2.0)  tend=ASC   
+13:42  -11.66 C  (+ 3.3)  tend=ASC   ALARMA: C_bandas_15_10_5, C_bandas_15_8_0, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+13:47  -10.90 C  (+ 4.1)  tend=ASC   <- PICO -10.90 C ALARMA: A_solo_tiempo, B_tiempo_tendencia, D_dinamica_k2_T20
+13:52  -12.11 C  (+ 2.9)  tend=EST   
+13:57  -13.84 C  (+ 1.2)  tend=DESC  
+14:02  vuelve a rango (<= -15 C)
+
+### E04  (cerca_de_-10)   21/08 15:22  |  pico avg -10.09 C (max -9.94)  |  dur 35 min
+15:17  (aprox) cruza -15 C   [prev -15.41 C]
+15:22  -13.95 C  (+ 1.1)  tend=ASC   
+15:27  -12.24 C  (+ 2.8)  tend=ASC   
+15:32  -10.77 C  (+ 4.2)  tend=ASC   ALARMA: C_bandas_15_10_5, C_bandas_15_8_0, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+15:37  -10.09 C  (+ 4.9)  tend=ASC   <- PICO -10.09 C ALARMA: A_solo_tiempo, B_tiempo_tendencia, D_dinamica_k2_T20
+15:42  -11.33 C  (+ 3.7)  tend=DESC  
+15:47  -13.12 C  (+ 1.9)  tend=DESC  
+15:52  -14.73 C  (+ 0.3)  tend=DESC  
+15:57  vuelve a rango (<= -15 C)
+
+### E21  (graves_-8_o_mas)   24/08 13:18  |  pico avg -7.69 C (max -3.81)  |  dur 45 min
+13:13  (aprox) cruza -15 C   [prev -15.53 C]
+13:18   -7.69 C  (+ 7.3)  tend=ASC   <- PICO -7.69 C ALARMA: C_bandas_15_8_0, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+13:23  -11.36 C  (+ 3.6)  tend=ASC   ALARMA: C_bandas_15_10_5
+13:28  -12.44 C  (+ 2.6)  tend=DESC  
+13:33  -12.76 C  (+ 2.2)  tend=DESC  ALARMA: A_solo_tiempo
+13:38  -12.81 C  (+ 2.2)  tend=EST   ALARMA: D_dinamica_k2_T20
+13:43  -12.72 C  (+ 2.3)  tend=EST   
+13:48  -12.56 C  (+ 2.4)  tend=EST   ALARMA: B_tiempo_tendencia
+13:53  -12.81 C  (+ 2.2)  tend=EST   
+13:58  -14.92 C  (+ 0.1)  tend=DESC  
+14:03  vuelve a rango (<= -15 C)
+
+### E30  (graves_-8_o_mas)   25/08 08:08  |  pico avg -6.53 C (max -5.69)  |  dur 105 min
+08:03  (aprox) cruza -15 C   [prev -15.06 C]
+08:08  -14.90 C  (+ 0.1)  tend=ASC   
+08:13  -14.76 C  (+ 0.2)  tend=EST   
+08:18  -14.62 C  (+ 0.4)  tend=EST   
+08:23  -14.49 C  (+ 0.5)  tend=EST   ALARMA: A_solo_tiempo, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+08:28  -14.36 C  (+ 0.6)  tend=EST   ALARMA: D_dinamica_k2_T20
+08:33  -14.24 C  (+ 0.8)  tend=EST   
+08:38  -14.12 C  (+ 0.9)  tend=EST   ALARMA: B_tiempo_tendencia, C_bandas_15_10_5, C_bandas_15_8_0
+08:43  -14.23 C  (+ 0.8)  tend=EST   
+08:48  -14.61 C  (+ 0.4)  tend=EST   
+08:53  -14.56 C  (+ 0.4)  tend=EST   
+08:58  -14.36 C  (+ 0.6)  tend=EST   
+09:03  -13.98 C  (+ 1.0)  tend=ASC   
+09:08  -13.37 C  (+ 1.6)  tend=ASC   
+09:13  -12.24 C  (+ 2.8)  tend=ASC   
+09:18  -10.48 C  (+ 4.5)  tend=ASC   
+09:23   -8.57 C  (+ 6.4)  tend=ASC   
+09:28   -6.53 C  (+ 8.5)  tend=ASC   <- PICO -6.53 C
+09:33   -6.84 C  (+ 8.2)  tend=ASC   
+09:38   -8.64 C  (+ 6.4)  tend=DESC  
+09:43  -11.17 C  (+ 3.8)  tend=DESC  
+09:48  -13.53 C  (+ 1.5)  tend=DESC  
+09:53  vuelve a rango (<= -15 C)
+
+### E35  (graves_-8_o_mas)   26/08 10:23  |  pico avg -6.86 C (max -6.56)  |  dur 45 min
+10:18  (aprox) cruza -15 C   [prev -15.00 C]
+10:23  -14.55 C  (+ 0.5)  tend=ASC   
+10:28  -13.89 C  (+ 1.1)  tend=ASC   
+10:33  -12.78 C  (+ 2.2)  tend=ASC   ALARMA: C_bandas_15_10_5, C_bandas_15_8_0, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+10:38  -10.90 C  (+ 4.1)  tend=ASC   ALARMA: A_solo_tiempo, B_tiempo_tendencia, D_dinamica_k2_T20
+10:43   -8.40 C  (+ 6.6)  tend=ASC   
+10:48   -6.86 C  (+ 8.1)  tend=ASC   <- PICO -6.86 C
+10:53   -7.38 C  (+ 7.6)  tend=ASC   
+10:58   -9.80 C  (+ 5.2)  tend=DESC  
+11:03  -13.04 C  (+ 2.0)  tend=DESC  
+11:08  vuelve a rango (<= -15 C)
+
+### E42  (graves_-8_o_mas)   27/08 19:58  |  pico avg -4.70 C (max -4.06)  |  dur 50 min
+19:53  (aprox) cruza -15 C   [prev -15.05 C]
+19:58  -14.31 C  (+ 0.7)  tend=ASC   
+20:03  -13.40 C  (+ 1.6)  tend=ASC   
+20:08  -12.21 C  (+ 2.8)  tend=ASC   ALARMA: C_bandas_15_10_5, C_bandas_15_8_0, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+20:13  -10.16 C  (+ 4.8)  tend=ASC   ALARMA: A_solo_tiempo, B_tiempo_tendencia, D_dinamica_k2_T20
+20:18   -7.24 C  (+ 7.8)  tend=ASC   
+20:23   -4.70 C  (+10.3)  tend=ASC   <- PICO -4.70 C
+20:28   -5.17 C  (+ 9.8)  tend=ASC   
+20:33   -7.59 C  (+ 7.4)  tend=DESC  
+20:38  -11.30 C  (+ 3.7)  tend=DESC  
+20:43  -14.51 C  (+ 0.5)  tend=DESC  
+20:48  vuelve a rango (<= -15 C)
+
+### E21  (maximo_absoluto_del_ensayo)   24/08 13:18  |  pico avg -7.69 C (max -3.81)  |  dur 45 min
+13:13  (aprox) cruza -15 C   [prev -15.53 C]
+13:18   -7.69 C  (+ 7.3)  tend=ASC   <- PICO -7.69 C ALARMA: C_bandas_15_8_0, D_dinamica_k3_T15, D_dinamica_k3_T15_sinRec
+13:23  -11.36 C  (+ 3.6)  tend=ASC   ALARMA: C_bandas_15_10_5
+13:28  -12.44 C  (+ 2.6)  tend=DESC  
+13:33  -12.76 C  (+ 2.2)  tend=DESC  ALARMA: A_solo_tiempo
+13:38  -12.81 C  (+ 2.2)  tend=EST   ALARMA: D_dinamica_k2_T20
+13:43  -12.72 C  (+ 2.3)  tend=EST   
+13:48  -12.56 C  (+ 2.4)  tend=EST   ALARMA: B_tiempo_tendencia
+13:53  -12.81 C  (+ 2.2)  tend=EST   
+13:58  -14.92 C  (+ 0.1)  tend=DESC  
+14:03  vuelve a rango (<= -15 C)

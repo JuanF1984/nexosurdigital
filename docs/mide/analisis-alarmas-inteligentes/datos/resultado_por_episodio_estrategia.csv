@@ -1,0 +1,302 @@
+estrategia,episodio,pico_avg_c,n_periodos,duracion_min,grave_real,excursion_pequena,pequena_y_breve,alarmo,idx_periodo_alarma,min_desde_cruce,temp_alarma_c,min_antes_del_pico,motivo
+A_solo_tiempo,E01,-9.783,5,25.0,True,False,False,True,3.0,15.0,-11.36458,-5.0,15 min fuera de rango
+A_solo_tiempo,E02,-14.893,1,5.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E03,-10.904,6,30.0,False,False,False,True,3.0,15.0,-10.90417,0.0,15 min fuera de rango
+A_solo_tiempo,E04,-10.088,7,35.0,False,False,False,True,3.0,15.0,-10.0875,0.0,15 min fuera de rango
+A_solo_tiempo,E05,-14.407,8,40.0,False,True,False,True,3.0,15.0,-14.71354,20.0,15 min fuera de rango
+A_solo_tiempo,E06,-13.324,18,90.0,False,True,False,True,3.0,15.0,-14.48729,60.0,15 min fuera de rango
+A_solo_tiempo,E07,-13.798,12,60.0,False,True,False,True,3.0,15.0,-14.52396,35.0,15 min fuera de rango
+A_solo_tiempo,E08,-13.016,3,15.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E09,-9.095,4,20.0,True,False,False,True,3.0,15.0,-12.49687,-5.0,15 min fuera de rango
+A_solo_tiempo,E10,-14.88,2,10.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E11,-14.542,5,25.0,False,True,False,True,3.0,15.0,-14.65312,5.0,15 min fuera de rango
+A_solo_tiempo,E12,-14.876,2,10.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E13,-9.859,14,70.0,True,False,False,True,3.0,15.0,-11.2875,-5.0,15 min fuera de rango
+A_solo_tiempo,E14,-14.758,3,15.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E15,-14.643,3,15.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E16,-14.51,4,20.0,False,True,True,True,3.0,15.0,-14.51042,0.0,15 min fuera de rango
+A_solo_tiempo,E17,-14.463,5,25.0,False,True,False,True,3.0,15.0,-14.57187,5.0,15 min fuera de rango
+A_solo_tiempo,E18,-14.302,8,40.0,False,True,False,True,3.0,15.0,-14.62187,15.0,15 min fuera de rango
+A_solo_tiempo,E19,-14.249,8,40.0,False,True,False,True,3.0,15.0,-14.56875,15.0,15 min fuera de rango
+A_solo_tiempo,E20,-13.969,6,30.0,False,True,False,True,3.0,15.0,-13.96875,0.0,15 min fuera de rango
+A_solo_tiempo,E21,-7.688,9,45.0,True,False,False,True,3.0,15.0,-12.75937,-15.0,15 min fuera de rango
+A_solo_tiempo,E22,-13.593,6,30.0,False,True,False,True,3.0,15.0,-13.80515,5.0,15 min fuera de rango
+A_solo_tiempo,E23,-13.949,5,25.0,False,True,False,True,3.0,15.0,-13.94907,0.0,15 min fuera de rango
+A_solo_tiempo,E24,-14.0,5,25.0,False,True,False,True,3.0,15.0,-14.0,0.0,15 min fuera de rango
+A_solo_tiempo,E25,-13.959,5,25.0,False,True,False,True,3.0,15.0,-13.95938,0.0,15 min fuera de rango
+A_solo_tiempo,E26,-14.959,1,5.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E27,-14.805,3,15.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E28,-14.569,4,20.0,False,True,True,True,3.0,15.0,-14.56897,0.0,15 min fuera de rango
+A_solo_tiempo,E29,-14.397,6,30.0,False,True,False,True,3.0,15.0,-14.51458,5.0,15 min fuera de rango
+A_solo_tiempo,E30,-6.529,21,105.0,True,False,False,True,3.0,15.0,-14.48646,65.0,15 min fuera de rango
+A_solo_tiempo,E31,-12.101,14,70.0,False,False,False,True,3.0,15.0,-13.81771,45.0,15 min fuera de rango
+A_solo_tiempo,E32,-13.782,6,30.0,False,True,False,True,3.0,15.0,-13.91354,5.0,15 min fuera de rango
+A_solo_tiempo,E33,-14.826,1,5.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E34,-14.828,1,5.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E35,-6.855,9,45.0,True,False,False,True,3.0,15.0,-10.9,10.0,15 min fuera de rango
+A_solo_tiempo,E36,-14.234,4,20.0,False,True,True,True,3.0,15.0,-14.23438,0.0,15 min fuera de rango
+A_solo_tiempo,E37,-12.377,4,20.0,False,False,False,True,3.0,15.0,-13.26042,-10.0,15 min fuera de rango
+A_solo_tiempo,E38,-10.218,7,35.0,False,False,False,True,3.0,15.0,-10.21771,0.0,15 min fuera de rango
+A_solo_tiempo,E39,-14.42,5,25.0,False,True,False,True,3.0,15.0,-14.41979,0.0,15 min fuera de rango
+A_solo_tiempo,E40,-14.689,2,10.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E41,-14.785,1,5.0,False,True,True,False,,,,,observado sin alarma
+A_solo_tiempo,E42,-4.698,10,50.0,True,False,False,True,3.0,15.0,-10.16458,10.0,15 min fuera de rango
+A_solo_tiempo,E43,-8.097,7,35.0,True,False,False,True,3.0,15.0,-8.792708,5.0,15 min fuera de rango
+B_tiempo_tendencia,E01,-9.783,5,25.0,True,False,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E02,-14.893,1,5.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E03,-10.904,6,30.0,False,False,False,True,3.0,15.0,-10.90417,0.0,15 min + sigue calentando
+B_tiempo_tendencia,E04,-10.088,7,35.0,False,False,False,True,3.0,15.0,-10.0875,0.0,15 min + sigue calentando
+B_tiempo_tendencia,E05,-14.407,8,40.0,False,True,False,True,6.0,30.0,-14.45521,5.0,estable fuera de rango >=30 min
+B_tiempo_tendencia,E06,-13.324,18,90.0,False,True,False,True,6.0,30.0,-14.15,45.0,estable fuera de rango >=30 min
+B_tiempo_tendencia,E07,-13.798,12,60.0,False,True,False,True,6.0,30.0,-14.16354,20.0,estable fuera de rango >=30 min
+B_tiempo_tendencia,E08,-13.016,3,15.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E09,-9.095,4,20.0,True,False,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E10,-14.88,2,10.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E11,-14.542,5,25.0,False,True,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E12,-14.876,2,10.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E13,-9.859,14,70.0,True,False,False,True,6.0,30.0,-11.75,-20.0,estable fuera de rango >=30 min
+B_tiempo_tendencia,E14,-14.758,3,15.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E15,-14.643,3,15.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E16,-14.51,4,20.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E17,-14.463,5,25.0,False,True,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E18,-14.302,8,40.0,False,True,False,True,6.0,30.0,-14.30208,0.0,estable fuera de rango >=30 min
+B_tiempo_tendencia,E19,-14.249,8,40.0,False,True,False,True,6.0,30.0,-14.24896,0.0,estable fuera de rango >=30 min
+B_tiempo_tendencia,E20,-13.969,6,30.0,False,True,False,True,3.0,15.0,-13.96875,0.0,15 min + sigue calentando
+B_tiempo_tendencia,E21,-7.688,9,45.0,True,False,False,True,6.0,30.0,-12.56354,-30.0,estable fuera de rango >=30 min
+B_tiempo_tendencia,E22,-13.593,6,30.0,False,True,False,True,3.0,15.0,-13.80515,5.0,15 min + sigue calentando
+B_tiempo_tendencia,E23,-13.949,5,25.0,False,True,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E24,-14.0,5,25.0,False,True,False,True,3.0,15.0,-14.0,0.0,15 min + sigue calentando
+B_tiempo_tendencia,E25,-13.959,5,25.0,False,True,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E26,-14.959,1,5.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E27,-14.805,3,15.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E28,-14.569,4,20.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E29,-14.397,6,30.0,False,True,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E30,-6.529,21,105.0,True,False,False,True,6.0,30.0,-14.125,50.0,estable fuera de rango >=30 min
+B_tiempo_tendencia,E31,-12.101,14,70.0,False,False,False,True,3.0,15.0,-13.81771,45.0,15 min + sigue calentando
+B_tiempo_tendencia,E32,-13.782,6,30.0,False,True,False,True,3.0,15.0,-13.91354,5.0,15 min + sigue calentando
+B_tiempo_tendencia,E33,-14.826,1,5.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E34,-14.828,1,5.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E35,-6.855,9,45.0,True,False,False,True,3.0,15.0,-10.9,10.0,15 min + sigue calentando
+B_tiempo_tendencia,E36,-14.234,4,20.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E37,-12.377,4,20.0,False,False,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E38,-10.218,7,35.0,False,False,False,True,3.0,15.0,-10.21771,0.0,15 min + sigue calentando
+B_tiempo_tendencia,E39,-14.42,5,25.0,False,True,False,False,,,,,observado sin alarma
+B_tiempo_tendencia,E40,-14.689,2,10.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E41,-14.785,1,5.0,False,True,True,False,,,,,observado sin alarma
+B_tiempo_tendencia,E42,-4.698,10,50.0,True,False,False,True,3.0,15.0,-10.16458,10.0,15 min + sigue calentando
+B_tiempo_tendencia,E43,-8.097,7,35.0,True,False,False,True,3.0,15.0,-8.792708,5.0,15 min + sigue calentando
+C_bandas_15_10_5,E01,-9.783,5,25.0,True,False,False,True,2.0,10.0,-9.783334,0.0,"desviacion grave (>+5C), 5 min"
+C_bandas_15_10_5,E02,-14.893,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E03,-10.904,6,30.0,False,False,False,True,2.0,10.0,-11.66042,5.0,"banda 1, ventana 10 min, tendencia ASC"
+C_bandas_15_10_5,E04,-10.088,7,35.0,False,False,False,True,2.0,10.0,-10.76801,5.0,"banda 1, ventana 10 min, tendencia ASC"
+C_bandas_15_10_5,E05,-14.407,8,40.0,False,True,False,True,6.0,30.0,-14.45521,5.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_10_5,E06,-13.324,18,90.0,False,True,False,True,6.0,30.0,-14.15,45.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_10_5,E07,-13.798,12,60.0,False,True,False,True,6.0,30.0,-14.16354,20.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_10_5,E08,-13.016,3,15.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E09,-9.095,4,20.0,True,False,False,True,2.0,10.0,-9.094908,0.0,"desviacion grave (>+5C), 5 min"
+C_bandas_15_10_5,E10,-14.88,2,10.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E11,-14.542,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_10_5,E12,-14.876,2,10.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E13,-9.859,14,70.0,True,False,False,True,2.0,10.0,-9.858553,0.0,"desviacion grave (>+5C), 5 min"
+C_bandas_15_10_5,E14,-14.758,3,15.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E15,-14.643,3,15.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E16,-14.51,4,20.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E17,-14.463,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_10_5,E18,-14.302,8,40.0,False,True,False,True,6.0,30.0,-14.30208,0.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_10_5,E19,-14.249,8,40.0,False,True,False,True,6.0,30.0,-14.24896,0.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_10_5,E20,-13.969,6,30.0,False,True,False,True,3.0,15.0,-13.96875,0.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_10_5,E21,-7.688,9,45.0,True,False,False,True,1.0,5.0,-11.35938,-5.0,"desviacion grave (>+5C), 5 min"
+C_bandas_15_10_5,E22,-13.593,6,30.0,False,True,False,True,3.0,15.0,-13.80515,5.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_10_5,E23,-13.949,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_10_5,E24,-14.0,5,25.0,False,True,False,True,3.0,15.0,-14.0,0.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_10_5,E25,-13.959,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_10_5,E26,-14.959,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E27,-14.805,3,15.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E28,-14.569,4,20.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E29,-14.397,6,30.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_10_5,E30,-6.529,21,105.0,True,False,False,True,6.0,30.0,-14.125,50.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_10_5,E31,-12.101,14,70.0,False,False,False,True,3.0,15.0,-13.81771,45.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_10_5,E32,-13.782,6,30.0,False,True,False,True,3.0,15.0,-13.91354,5.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_10_5,E33,-14.826,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E34,-14.828,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E35,-6.855,9,45.0,True,False,False,True,2.0,10.0,-12.77604,15.0,"banda 1, ventana 10 min, tendencia ASC"
+C_bandas_15_10_5,E36,-14.234,4,20.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E37,-12.377,4,20.0,False,False,False,True,2.0,10.0,-12.48854,-5.0,"banda 1, ventana 10 min, tendencia ASC"
+C_bandas_15_10_5,E38,-10.218,7,35.0,False,False,False,True,2.0,10.0,-11.05521,5.0,"banda 1, ventana 10 min, tendencia ASC"
+C_bandas_15_10_5,E39,-14.42,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_10_5,E40,-14.689,2,10.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E41,-14.785,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_10_5,E42,-4.698,10,50.0,True,False,False,True,2.0,10.0,-12.21146,15.0,"banda 1, ventana 10 min, tendencia ASC"
+C_bandas_15_10_5,E43,-8.097,7,35.0,True,False,False,True,2.0,10.0,-10.60208,10.0,"banda 1, ventana 10 min, tendencia ASC"
+C_bandas_15_8_0,E01,-9.783,5,25.0,True,False,False,True,2.0,10.0,-9.783334,0.0,"desviacion grave (>+5C), 0 min"
+C_bandas_15_8_0,E02,-14.893,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E03,-10.904,6,30.0,False,False,False,True,2.0,10.0,-11.66042,5.0,"banda 1, ventana 8 min, tendencia ASC"
+C_bandas_15_8_0,E04,-10.088,7,35.0,False,False,False,True,2.0,10.0,-10.76801,5.0,"banda 1, ventana 8 min, tendencia ASC"
+C_bandas_15_8_0,E05,-14.407,8,40.0,False,True,False,True,6.0,30.0,-14.45521,5.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_8_0,E06,-13.324,18,90.0,False,True,False,True,6.0,30.0,-14.15,45.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_8_0,E07,-13.798,12,60.0,False,True,False,True,6.0,30.0,-14.16354,20.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_8_0,E08,-13.016,3,15.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E09,-9.095,4,20.0,True,False,False,True,2.0,10.0,-9.094908,0.0,"desviacion grave (>+5C), 0 min"
+C_bandas_15_8_0,E10,-14.88,2,10.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E11,-14.542,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_8_0,E12,-14.876,2,10.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E13,-9.859,14,70.0,True,False,False,True,2.0,10.0,-9.858553,0.0,"desviacion grave (>+5C), 0 min"
+C_bandas_15_8_0,E14,-14.758,3,15.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E15,-14.643,3,15.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E16,-14.51,4,20.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E17,-14.463,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_8_0,E18,-14.302,8,40.0,False,True,False,True,6.0,30.0,-14.30208,0.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_8_0,E19,-14.249,8,40.0,False,True,False,True,6.0,30.0,-14.24896,0.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_8_0,E20,-13.969,6,30.0,False,True,False,True,3.0,15.0,-13.96875,0.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_8_0,E21,-7.688,9,45.0,True,False,False,True,0.0,0.0,-7.6875,0.0,"desviacion grave (>+5C), 0 min"
+C_bandas_15_8_0,E22,-13.593,6,30.0,False,True,False,True,3.0,15.0,-13.80515,5.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_8_0,E23,-13.949,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_8_0,E24,-14.0,5,25.0,False,True,False,True,3.0,15.0,-14.0,0.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_8_0,E25,-13.959,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_8_0,E26,-14.959,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E27,-14.805,3,15.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E28,-14.569,4,20.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E29,-14.397,6,30.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_8_0,E30,-6.529,21,105.0,True,False,False,True,6.0,30.0,-14.125,50.0,"banda 0, ventana 15 min, tendencia EST"
+C_bandas_15_8_0,E31,-12.101,14,70.0,False,False,False,True,3.0,15.0,-13.81771,45.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_8_0,E32,-13.782,6,30.0,False,True,False,True,3.0,15.0,-13.91354,5.0,"banda 0, ventana 15 min, tendencia ASC"
+C_bandas_15_8_0,E33,-14.826,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E34,-14.828,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E35,-6.855,9,45.0,True,False,False,True,2.0,10.0,-12.77604,15.0,"banda 1, ventana 8 min, tendencia ASC"
+C_bandas_15_8_0,E36,-14.234,4,20.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E37,-12.377,4,20.0,False,False,False,True,2.0,10.0,-12.48854,-5.0,"banda 1, ventana 8 min, tendencia ASC"
+C_bandas_15_8_0,E38,-10.218,7,35.0,False,False,False,True,2.0,10.0,-11.05521,5.0,"banda 1, ventana 8 min, tendencia ASC"
+C_bandas_15_8_0,E39,-14.42,5,25.0,False,True,False,False,,,,,observado sin alarma
+C_bandas_15_8_0,E40,-14.689,2,10.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E41,-14.785,1,5.0,False,True,True,False,,,,,observado sin alarma
+C_bandas_15_8_0,E42,-4.698,10,50.0,True,False,False,True,2.0,10.0,-12.21146,15.0,"banda 1, ventana 8 min, tendencia ASC"
+C_bandas_15_8_0,E43,-8.097,7,35.0,True,False,False,True,2.0,10.0,-10.60208,10.0,"banda 1, ventana 8 min, tendencia ASC"
+D_dinamica_k3_T15,E01,-9.783,5,25.0,True,False,False,True,2.0,10.0,-9.783334,0.0,"dist +5.2C -> tolerancia 0 min, tendencia ASC"
+D_dinamica_k3_T15,E02,-14.893,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E03,-10.904,6,30.0,False,False,False,True,2.0,10.0,-11.66042,5.0,"dist +3.3C -> tolerancia 5 min, tendencia ASC"
+D_dinamica_k3_T15,E04,-10.088,7,35.0,False,False,False,True,2.0,10.0,-10.76801,5.0,"dist +4.2C -> tolerancia 2 min, tendencia ASC"
+D_dinamica_k3_T15,E05,-14.407,8,40.0,False,True,False,True,3.0,15.0,-14.71354,20.0,"dist +0.3C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E06,-13.324,18,90.0,False,True,False,True,3.0,15.0,-14.48729,60.0,"dist +0.5C -> tolerancia 13 min, tendencia EST"
+D_dinamica_k3_T15,E07,-13.798,12,60.0,False,True,False,True,3.0,15.0,-14.52396,35.0,"dist +0.5C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E08,-13.016,3,15.0,False,True,True,True,2.0,10.0,-13.46771,-5.0,"dist +2.0C -> tolerancia 9 min, tendencia EST"
+D_dinamica_k3_T15,E09,-9.095,4,20.0,True,False,False,True,2.0,10.0,-9.094908,0.0,"dist +5.9C -> tolerancia 0 min, tendencia ASC"
+D_dinamica_k3_T15,E10,-14.88,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E11,-14.542,5,25.0,False,True,False,True,3.0,15.0,-14.65312,5.0,"dist +0.3C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E12,-14.876,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E13,-9.859,14,70.0,True,False,False,True,1.0,5.0,-10.55833,5.0,"dist +4.4C -> tolerancia 2 min, tendencia ASC"
+D_dinamica_k3_T15,E14,-14.758,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E15,-14.643,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E16,-14.51,4,20.0,False,True,True,True,3.0,15.0,-14.51042,0.0,"dist +0.5C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E17,-14.463,5,25.0,False,True,False,True,3.0,15.0,-14.57187,5.0,"dist +0.4C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E18,-14.302,8,40.0,False,True,False,True,3.0,15.0,-14.62187,15.0,"dist +0.4C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E19,-14.249,8,40.0,False,True,False,True,3.0,15.0,-14.56875,15.0,"dist +0.4C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E20,-13.969,6,30.0,False,True,False,True,3.0,15.0,-13.96875,0.0,"dist +1.0C -> tolerancia 12 min, tendencia ASC"
+D_dinamica_k3_T15,E21,-7.688,9,45.0,True,False,False,True,0.0,0.0,-7.6875,0.0,"dist +7.3C -> tolerancia 0 min, tendencia ASC"
+D_dinamica_k3_T15,E22,-13.593,6,30.0,False,True,False,True,3.0,15.0,-13.80515,5.0,"dist +1.2C -> tolerancia 11 min, tendencia ASC"
+D_dinamica_k3_T15,E23,-13.949,5,25.0,False,True,False,True,3.0,15.0,-13.94907,0.0,"dist +1.1C -> tolerancia 12 min, tendencia EST"
+D_dinamica_k3_T15,E24,-14.0,5,25.0,False,True,False,True,3.0,15.0,-14.0,0.0,"dist +1.0C -> tolerancia 12 min, tendencia ASC"
+D_dinamica_k3_T15,E25,-13.959,5,25.0,False,True,False,True,3.0,15.0,-13.95938,0.0,"dist +1.0C -> tolerancia 12 min, tendencia EST"
+D_dinamica_k3_T15,E26,-14.959,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E27,-14.805,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E28,-14.569,4,20.0,False,True,True,True,3.0,15.0,-14.56897,0.0,"dist +0.4C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E29,-14.397,6,30.0,False,True,False,True,3.0,15.0,-14.51458,5.0,"dist +0.5C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15,E30,-6.529,21,105.0,True,False,False,True,3.0,15.0,-14.48646,65.0,"dist +0.5C -> tolerancia 13 min, tendencia EST"
+D_dinamica_k3_T15,E31,-12.101,14,70.0,False,False,False,True,3.0,15.0,-13.81771,45.0,"dist +1.2C -> tolerancia 11 min, tendencia ASC"
+D_dinamica_k3_T15,E32,-13.782,6,30.0,False,True,False,True,3.0,15.0,-13.91354,5.0,"dist +1.1C -> tolerancia 12 min, tendencia ASC"
+D_dinamica_k3_T15,E33,-14.826,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E34,-14.828,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E35,-6.855,9,45.0,True,False,False,True,2.0,10.0,-12.77604,15.0,"dist +2.2C -> tolerancia 8 min, tendencia ASC"
+D_dinamica_k3_T15,E36,-14.234,4,20.0,False,True,True,True,3.0,15.0,-14.23438,0.0,"dist +0.8C -> tolerancia 13 min, tendencia EST"
+D_dinamica_k3_T15,E37,-12.377,4,20.0,False,False,False,True,2.0,10.0,-12.48854,-5.0,"dist +2.6C -> tolerancia 7 min, tendencia ASC"
+D_dinamica_k3_T15,E38,-10.218,7,35.0,False,False,False,True,2.0,10.0,-11.05521,5.0,"dist +3.9C -> tolerancia 3 min, tendencia ASC"
+D_dinamica_k3_T15,E39,-14.42,5,25.0,False,True,False,True,3.0,15.0,-14.41979,0.0,"dist +0.6C -> tolerancia 13 min, tendencia EST"
+D_dinamica_k3_T15,E40,-14.689,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E41,-14.785,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15,E42,-4.698,10,50.0,True,False,False,True,2.0,10.0,-12.21146,15.0,"dist +2.8C -> tolerancia 7 min, tendencia ASC"
+D_dinamica_k3_T15,E43,-8.097,7,35.0,True,False,False,True,2.0,10.0,-10.60208,10.0,"dist +4.4C -> tolerancia 2 min, tendencia ASC"
+D_dinamica_k2_T20,E01,-9.783,5,25.0,True,False,False,True,2.0,10.0,-9.783334,0.0,"dist +5.2C -> tolerancia 10 min, tendencia ASC"
+D_dinamica_k2_T20,E02,-14.893,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E03,-10.904,6,30.0,False,False,False,True,3.0,15.0,-10.90417,0.0,"dist +4.1C -> tolerancia 12 min, tendencia ASC"
+D_dinamica_k2_T20,E04,-10.088,7,35.0,False,False,False,True,3.0,15.0,-10.0875,0.0,"dist +4.9C -> tolerancia 10 min, tendencia ASC"
+D_dinamica_k2_T20,E05,-14.407,8,40.0,False,True,False,True,4.0,20.0,-14.62931,15.0,"dist +0.4C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E06,-13.324,18,90.0,False,True,False,True,4.0,20.0,-14.37083,55.0,"dist +0.6C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E07,-13.798,12,60.0,False,True,False,True,4.0,20.0,-14.40104,30.0,"dist +0.6C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E08,-13.016,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E09,-9.095,4,20.0,True,False,False,True,2.0,10.0,-9.094908,0.0,"dist +5.9C -> tolerancia 8 min, tendencia ASC"
+D_dinamica_k2_T20,E10,-14.88,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E11,-14.542,5,25.0,False,True,False,True,4.0,20.0,-14.54167,0.0,"dist +0.5C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E12,-14.876,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E13,-9.859,14,70.0,True,False,False,True,2.0,10.0,-9.858553,0.0,"dist +5.1C -> tolerancia 10 min, tendencia ASC"
+D_dinamica_k2_T20,E14,-14.758,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E15,-14.643,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E16,-14.51,4,20.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E17,-14.463,5,25.0,False,True,False,True,4.0,20.0,-14.4625,0.0,"dist +0.5C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E18,-14.302,8,40.0,False,True,False,True,4.0,20.0,-14.51563,10.0,"dist +0.5C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E19,-14.249,8,40.0,False,True,False,True,4.0,20.0,-14.45833,10.0,"dist +0.5C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E20,-13.969,6,30.0,False,True,False,True,4.0,20.0,-14.00729,-5.0,"dist +1.0C -> tolerancia 18 min, tendencia ASC"
+D_dinamica_k2_T20,E21,-7.688,9,45.0,True,False,False,True,4.0,20.0,-12.8125,-20.0,"dist +7.3C -> tolerancia 5 min, tendencia EST"
+D_dinamica_k2_T20,E22,-13.593,6,30.0,False,True,False,True,4.0,20.0,-13.59271,0.0,"dist +1.4C -> tolerancia 17 min, tendencia ASC"
+D_dinamica_k2_T20,E23,-13.949,5,25.0,False,True,False,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E24,-14.0,5,25.0,False,True,False,True,4.0,20.0,-14.02119,-5.0,"dist +1.0C -> tolerancia 18 min, tendencia EST"
+D_dinamica_k2_T20,E25,-13.959,5,25.0,False,True,False,True,4.0,20.0,-14.00208,-5.0,"dist +1.0C -> tolerancia 18 min, tendencia EST"
+D_dinamica_k2_T20,E26,-14.959,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E27,-14.805,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E28,-14.569,4,20.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E29,-14.397,6,30.0,False,True,False,True,4.0,20.0,-14.39688,0.0,"dist +0.6C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E30,-6.529,21,105.0,True,False,False,True,4.0,20.0,-14.3625,60.0,"dist +0.6C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E31,-12.101,14,70.0,False,False,False,True,4.0,20.0,-13.55521,40.0,"dist +1.4C -> tolerancia 17 min, tendencia ASC"
+D_dinamica_k2_T20,E32,-13.782,6,30.0,False,True,False,True,4.0,20.0,-13.78229,0.0,"dist +1.2C -> tolerancia 18 min, tendencia EST"
+D_dinamica_k2_T20,E33,-14.826,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E34,-14.828,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E35,-6.855,9,45.0,True,False,False,True,3.0,15.0,-10.9,10.0,"dist +4.1C -> tolerancia 12 min, tendencia ASC"
+D_dinamica_k2_T20,E36,-14.234,4,20.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E37,-12.377,4,20.0,False,False,False,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E38,-10.218,7,35.0,False,False,False,True,3.0,15.0,-10.21771,0.0,"dist +4.8C -> tolerancia 10 min, tendencia ASC"
+D_dinamica_k2_T20,E39,-14.42,5,25.0,False,True,False,True,4.0,20.0,-14.92292,-5.0,"dist +0.6C -> tolerancia 19 min, tendencia EST"
+D_dinamica_k2_T20,E40,-14.689,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E41,-14.785,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k2_T20,E42,-4.698,10,50.0,True,False,False,True,3.0,15.0,-10.16458,10.0,"dist +4.8C -> tolerancia 10 min, tendencia ASC"
+D_dinamica_k2_T20,E43,-8.097,7,35.0,True,False,False,True,3.0,15.0,-8.792708,5.0,"dist +6.2C -> tolerancia 8 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E01,-9.783,5,25.0,True,False,False,True,2.0,10.0,-9.783334,0.0,"dist +5.2C -> tolerancia 0 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E02,-14.893,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E03,-10.904,6,30.0,False,False,False,True,2.0,10.0,-11.66042,5.0,"dist +3.3C -> tolerancia 5 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E04,-10.088,7,35.0,False,False,False,True,2.0,10.0,-10.76801,5.0,"dist +4.2C -> tolerancia 2 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E05,-14.407,8,40.0,False,True,False,True,3.0,15.0,-14.71354,20.0,"dist +0.3C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E06,-13.324,18,90.0,False,True,False,True,3.0,15.0,-14.48729,60.0,"dist +0.5C -> tolerancia 13 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E07,-13.798,12,60.0,False,True,False,True,3.0,15.0,-14.52396,35.0,"dist +0.5C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E08,-13.016,3,15.0,False,True,True,True,2.0,10.0,-13.46771,-5.0,"dist +2.0C -> tolerancia 9 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E09,-9.095,4,20.0,True,False,False,True,2.0,10.0,-9.094908,0.0,"dist +5.9C -> tolerancia 0 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E10,-14.88,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E11,-14.542,5,25.0,False,True,False,True,3.0,15.0,-14.65312,5.0,"dist +0.3C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E12,-14.876,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E13,-9.859,14,70.0,True,False,False,True,1.0,5.0,-10.55833,5.0,"dist +4.4C -> tolerancia 2 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E14,-14.758,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E15,-14.643,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E16,-14.51,4,20.0,False,True,True,True,3.0,15.0,-14.51042,0.0,"dist +0.5C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E17,-14.463,5,25.0,False,True,False,True,3.0,15.0,-14.57187,5.0,"dist +0.4C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E18,-14.302,8,40.0,False,True,False,True,3.0,15.0,-14.62187,15.0,"dist +0.4C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E19,-14.249,8,40.0,False,True,False,True,3.0,15.0,-14.56875,15.0,"dist +0.4C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E20,-13.969,6,30.0,False,True,False,True,3.0,15.0,-13.96875,0.0,"dist +1.0C -> tolerancia 12 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E21,-7.688,9,45.0,True,False,False,True,0.0,0.0,-7.6875,0.0,"dist +7.3C -> tolerancia 0 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E22,-13.593,6,30.0,False,True,False,True,3.0,15.0,-13.80515,5.0,"dist +1.2C -> tolerancia 11 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E23,-13.949,5,25.0,False,True,False,True,3.0,15.0,-13.94907,0.0,"dist +1.1C -> tolerancia 12 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E24,-14.0,5,25.0,False,True,False,True,3.0,15.0,-14.0,0.0,"dist +1.0C -> tolerancia 12 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E25,-13.959,5,25.0,False,True,False,True,3.0,15.0,-13.95938,0.0,"dist +1.0C -> tolerancia 12 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E26,-14.959,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E27,-14.805,3,15.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E28,-14.569,4,20.0,False,True,True,True,3.0,15.0,-14.56897,0.0,"dist +0.4C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E29,-14.397,6,30.0,False,True,False,True,3.0,15.0,-14.51458,5.0,"dist +0.5C -> tolerancia 14 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E30,-6.529,21,105.0,True,False,False,True,3.0,15.0,-14.48646,65.0,"dist +0.5C -> tolerancia 13 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E31,-12.101,14,70.0,False,False,False,True,3.0,15.0,-13.81771,45.0,"dist +1.2C -> tolerancia 11 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E32,-13.782,6,30.0,False,True,False,True,3.0,15.0,-13.91354,5.0,"dist +1.1C -> tolerancia 12 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E33,-14.826,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E34,-14.828,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E35,-6.855,9,45.0,True,False,False,True,2.0,10.0,-12.77604,15.0,"dist +2.2C -> tolerancia 8 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E36,-14.234,4,20.0,False,True,True,True,3.0,15.0,-14.23438,0.0,"dist +0.8C -> tolerancia 13 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E37,-12.377,4,20.0,False,False,False,True,2.0,10.0,-12.48854,-5.0,"dist +2.6C -> tolerancia 7 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E38,-10.218,7,35.0,False,False,False,True,2.0,10.0,-11.05521,5.0,"dist +3.9C -> tolerancia 3 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E39,-14.42,5,25.0,False,True,False,True,3.0,15.0,-14.41979,0.0,"dist +0.6C -> tolerancia 13 min, tendencia EST"
+D_dinamica_k3_T15_sinRec,E40,-14.689,2,10.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E41,-14.785,1,5.0,False,True,True,False,,,,,observado sin alarma
+D_dinamica_k3_T15_sinRec,E42,-4.698,10,50.0,True,False,False,True,2.0,10.0,-12.21146,15.0,"dist +2.8C -> tolerancia 7 min, tendencia ASC"
+D_dinamica_k3_T15_sinRec,E43,-8.097,7,35.0,True,False,False,True,2.0,10.0,-10.60208,10.0,"dist +4.4C -> tolerancia 2 min, tendencia ASC"

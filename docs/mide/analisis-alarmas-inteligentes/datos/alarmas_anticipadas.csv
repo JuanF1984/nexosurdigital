@@ -1,0 +1,8 @@
+corte_avg_c,dist_sobre_umbral,episodios_que_disparan,de_esos_banda2_grave,de_esos_pico_apenas_sobre_corte_y_breve,min_ahorro_medio_vs_15,min_antes_del_pico_medio,temp_media_al_disparar_c
+-13.0,2.0,13,8,1,1.9,9.2,-11.71
+-12.0,3.0,11,8,0,0.9,6.4,-10.69
+-11.0,4.0,11,8,2,-0.9,4.5,-10.11
+-10.0,5.0,8,8,2,-5.0,2.5,-8.68
+-9.0,6.0,5,5,1,-11.0,4.0,-8.14
+-8.0,7.0,4,4,0,-16.2,1.2,-7.08
+-7.0,8.0,3,3,1,-28.3,0.0,-6.03

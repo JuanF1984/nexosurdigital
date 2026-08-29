@@ -1,0 +1,7 @@
+criterio,n_episodios,merges_vs_R1,dur_media_min,dur_max_min,min_extra_evento_abierto_vs_R1
+R1_avg<=-15.0_x1periodo,43,0,30.2,105.0,0.0
+R2_avg<=-15.5_x1periodo,43,0,30.2,105.0,0.0
+R3_avg<=-16.0_x1periodo,43,0,30.2,105.0,0.0
+R4_avg<=-15.0_x2periodos,43,0,30.2,105.0,5.0
+R5_avg<=-15.5_x2periodos,43,0,30.2,105.0,5.0
+R6_avg<=-15.5_x3periodos,43,0,30.2,105.0,10.0
