@@ -23,7 +23,9 @@ entorno aparte), después de que se aplicaran ahí los permisos mínimos de
 > `src/lib/mide/validation.test.ts`, con un doble en memoria del cliente
 > Supabase). Falta aplicar a mano las migraciones `20260905120000` /
 > `20260905120001` y sus `grant` sobre la base real y repasar
-> `scripts/test-mide.mjs` contra ella.
+> `scripts/test-mide.mjs` contra ella. `20260905120002` ya se aplicó a mano;
+> falta aplicar `20260905120003` (lease de la notificación, incremental sobre
+> `120002`).
 
 Se ejecutó `scripts/test-mide.mjs`:
 
@@ -267,13 +269,64 @@ reintento). Cierre: `{ "ok": true, "resolved": true, "created": false }`
 | `415`  | `Content-Type` distinto de `application/json`.   |
 | `500`  | Error interno.                                    |
 
-Migración: `supabase/migrations/20260905120001_mide_event_close_and_metadata.sql`
-(agrega `events.metadata jsonb` y la función `mide_upsert_event`).
+Migraciones:
+- `20260905120001_mide_event_close_and_metadata.sql` — `events.metadata jsonb`
+  y la función `mide_upsert_event`.
+- `20260905120002_mide_event_notifications.sql` — `events.alert_notified_at` /
+  `events.recovery_notified_at`, `mide_upsert_event` con RETURN ampliado (id de
+  la fila + `value_at_start` / `peak_value` / `started_at` / `ended_at`, mismos
+  argumentos), y la primera versión (una sola columna) de
+  `mide_claim_event_notification` / `mide_release_event_notification`.
+- `20260905120003_mide_event_notification_lease.sql` — **incremental sobre
+  `120002` ya aplicada**. Agrega `events.alert_notify_claimed_at` /
+  `recovery_notify_claimed_at` (reserva con lease de 2 min), la función
+  `mide_confirm_event_notification`, y reescribe el cuerpo de
+  `mide_claim_event_notification` (ahora sella la reserva, no el envío) y
+  `mide_release_event_notification` (ahora libera la reserva) — mismas firmas,
+  `create or replace`, sin recrear columnas.
 
-### Notificaciones
+### Notificaciones por e-mail (Ensayo 2)
 
-Sin cambios: las notificaciones a usuario siguen sin implementarse. El
-endpoint sólo persiste el evento y su cierre.
+`/api/mide/event` ahora manda **e-mail vía Resend**, además de persistir:
+
+| POST | E-mail |
+|---|---|
+| Apertura con `metadata.reason` ∈ `GRAVEDAD` / `PERSISTENCIA_ASCENDENTE` / `PERSISTENCIA_ESTABLE` | **ALERTA** (dispositivo, temperatura, umbral configurado de `device_config`, desviación, motivo, severidad, fecha/hora). |
+| Cierre (`endedAt` presente) | **RECUPERACIÓN** (dispositivo, pico, duración del episodio, fecha/hora de recuperación). |
+| Apertura sin `reason` de alarma / `reason` no escalable | ninguno (una excursión que quedó en observación nunca llega a este endpoint). |
+
+**Idempotencia del e-mail — persistida en base, en dos fases:**
+
+1. **Reserva con lease** — `mide_claim_event_notification(id, kind)` hace
+   `UPDATE ... SET <kind>_notify_claimed_at = now() WHERE <kind>_notified_at
+   IS NULL AND (<kind>_notify_claimed_at IS NULL OR es más viejo que el
+   lease)`. Devuelve `true` a **un solo** llamador → sólo un worker intenta
+   enviar; los reintentos concurrentes del mismo POST obtienen `false`.
+2. **Confirmación** — `mide_confirm_event_notification(id, kind)` marca
+   `<kind>_notified_at = now()` y **sólo se llama después** de que el
+   proveedor acepta el e-mail. Un tipo confirmado no se vuelve a reservar
+   nunca.
+
+El lease (2 min) es lo que hace el sistema **a prueba de caídas**: si el
+worker muere entre la reserva y la confirmación, `_notified_at` sigue `NULL`,
+así que la reserva no vale como "ya avisado" — cuando expira el lease, el
+siguiente reintento del firmware la vuelve a tomar y envía. Es entrega
+**at-least-once**: si el worker alcanzó a mandar el e-mail antes de morir,
+puede haber un duplicado raro (aceptado a propósito).
+
+`alert` y `recovery` son tipos independientes. Un cierre sin apertura previa
+sólo reserva/confirma RECUPERACIÓN; las columnas de `alert` quedan `NULL`.
+
+**Tolerante a fallos:** si el proveedor de e-mail falla **con el proceso
+vivo**, la ruta responde 2xx igual (el evento ya está persistido), loguea el
+error sin secretos y **libera la reserva** (`mide_release_event_notification`)
+para que el siguiente reintento del firmware no tenga que esperar el lease. Si
+faltan las variables de entorno de e-mail, el evento se persiste igual, se
+loguea un `warn` y no se intenta enviar.
+
+**Variables de entorno** (dedicadas, separadas de `/api/energy-event`):
+`MIDE_RESEND_API_KEY`, `MIDE_ALERT_EMAIL_FROM`, `MIDE_ALERT_EMAIL_TO`
+(coma-separada). Ver `.env.example`.
 
 ### Validado contra la base real
 

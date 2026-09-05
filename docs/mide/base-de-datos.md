@@ -144,6 +144,56 @@ térmico**, identificada por `(device_id, event_uid)`.
 envía. Todo es idempotente: un reintento no crea una segunda fila ni regresa
 `ended_at` / `peak_value` / `status`.
 
+Desde `20260905120002_mide_event_notifications.sql`, `mide_upsert_event`
+además **devuelve** el `id` de la fila y `value_at_start` / `peak_value` /
+`started_at` / `ended_at` (mismos argumentos), para que `/api/mide/event`
+arme el e-mail sin un segundo `SELECT`.
+
+### Idempotencia de las notificaciones por e-mail (dos fases, a prueba de caídas)
+
+`/api/mide/event` manda dos e-mails a lo largo de un episodio (ALERTA en la
+apertura, RECUPERACIÓN en el cierre). Cada tipo tiene **dos** columnas: separar
+"lo estoy intentando" de "ya se envió" es lo que hace que una caída del proceso
+entre ambas cosas sea recuperable en vez de una notificación perdida.
+
+> Las columnas `*_notified_at` y la primera versión de las funciones vienen de
+> `20260905120002` (**ya aplicada**). Las columnas `*_notify_claimed_at`, la
+> función `mide_confirm_event_notification` y el cuerpo actual (con lease) de
+> `claim` / `release` los agrega `20260905120003` (**incremental, falta
+> aplicar**).
+
+```text
+alert_notify_claimed_at     timestamptz   -- ALERTA: reserva / lease (efímero)
+recovery_notify_claimed_at  timestamptz   -- RECUPERACIÓN: reserva / lease
+alert_notified_at           timestamptz   -- ALERTA: envío CONFIRMADO (permanente)
+recovery_notified_at        timestamptz   -- RECUPERACIÓN: envío CONFIRMADO
+```
+
+- `mide_claim_event_notification(id, kind)` → `boolean`: `UPDATE events SET
+  <kind>_notify_claimed_at = now() WHERE <kind>_notified_at IS NULL AND
+  (<kind>_notify_claimed_at IS NULL OR < now() - interval '2 minutes')`,
+  devuelve `FOUND`. Gana **un** llamador → un solo worker intenta enviar; los
+  reintentos concurrentes obtienen `false`. La reserva vieja (> lease) se puede
+  volver a tomar: modela un worker que reservó y se cayó sin confirmar.
+- `mide_confirm_event_notification(id, kind)` → `void`: `SET
+  <kind>_notified_at = now(), <kind>_notify_claimed_at = null WHERE
+  <kind>_notified_at IS NULL`. **Sólo se llama tras el OK del proveedor.** Un
+  tipo confirmado no se reserva nunca más. Idempotente.
+- `mide_release_event_notification(id, kind)` → `void`: `SET
+  <kind>_notify_claimed_at = null` (si no está confirmado). La ruta lo usa
+  cuando el envío falla con el proceso vivo, para no esperar el lease.
+- Comportamiento ante caída: el worker muere entre `claim` y `confirm` →
+  `_notified_at` sigue `NULL`, la reserva expira, el siguiente reintento del
+  firmware la retoma y envía. Entrega **at-least-once** (posible duplicado raro
+  si el e-mail salió justo antes de la caída).
+- `alert` y `recovery` son independientes. Un cierre sin apertura previa sólo
+  reserva/confirma `recovery`; las columnas de `alert` quedan `NULL`.
+- La columna original `events.notified_at` (del esquema inicial) sigue sin
+  usarse; se dejó intacta.
+
+`service_role` no necesita permisos nuevos: ya tenía `update, select` sobre
+`events` (de `20260905120001`).
+
 ### `events.metadata` (jsonb, experimental)
 
 Objeto plano opcional con la metadata del motor de alarmas del firmware
@@ -250,7 +300,9 @@ device_config    → SELECT
 
 `measurements.UPDATE` y `events.UPDATE, SELECT` los **agregan las migraciones
 `20260905120000` / `20260905120001`** (van al final de cada archivo, junto a
-la función): `mide_ingest_report` y `mide_upsert_event` corren
+la función); `20260905120002` / `20260905120003` no agregan grants sobre
+tablas (reusan `events.UPDATE, SELECT`), sólo `grant execute` de sus
+funciones a `service_role`. `mide_ingest_report` y `mide_upsert_event` corren
 `SECURITY INVOKER` (con los privilegios de `service_role`, misma postura que
 antes) y ahora hacen `INSERT ... ON CONFLICT DO UPDATE`; `mide_upsert_event`
 además tiene `RETURNING`. Sin esos grants, los upserts fallan con
@@ -290,6 +342,20 @@ real, previo diff):
 - `20260905120001_mide_event_close_and_metadata.sql` — agrega
   `events.metadata jsonb` y la función `mide_upsert_event` (modelo de fila
   única por episodio: abrir y luego cerrar/recuperar con el mismo `event_uid`).
+- `20260905120002_mide_event_notifications.sql` — **ya aplicada a mano.**
+  Primera versión de la notificación por e-mail: columnas
+  `events.alert_notified_at` / `recovery_notified_at`, funciones
+  `mide_claim_event_notification` / `mide_release_event_notification` (claim de
+  una sola columna: la misma marca sirve de "reservado" y de "enviado"), y
+  `mide_upsert_event` con `RETURN` ampliado (mismos argumentos).
+- `20260905120003_mide_event_notification_lease.sql` — **incremental sobre
+  `120002` ya aplicada; falta aplicar.** Hace la idempotencia a prueba de
+  caídas: agrega `alert_notify_claimed_at` / `recovery_notify_claimed_at`
+  (reserva con lease de 2 min), la función `mide_confirm_event_notification`
+  (marca de envío confirmado), y reescribe con `create or replace` (mismas
+  firmas) el cuerpo de `mide_claim_event_notification` (sella la reserva) y
+  `mide_release_event_notification` (libera la reserva). No recrea columnas ni
+  cambia firmas. `grant execute` sólo para la función nueva.
 
 `supabase/seed.sql` es un archivo distinto, con datos de desarrollo/testing
 (entre ellos el dispositivo `mide-frio-001` y el fixture de dispositivo

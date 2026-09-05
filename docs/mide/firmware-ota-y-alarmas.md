@@ -6,10 +6,11 @@ lado de Nexo Sur**.
 
 > **Actualización (Ensayo 2):** ya se implementó, coordinado entre firmware y
 > backend, la parte de **eventos** (fila única por episodio: abrir → alerta →
-> cerrar/recuperar, idempotente, con `events.metadata jsonb`) y la
-> **idempotencia de `/api/mide/report`**. Ver [`api.md`](./api.md) y
-> [`base-de-datos.md`](./base-de-datos.md). Lo de **OTA** sigue pendiente y
-> desactivado (secciones 2 y siguientes, sin cambios).
+> cerrar/recuperar, idempotente, con `events.metadata jsonb`), la
+> **notificación por e-mail** de ALERTA / RECUPERACIÓN (idempotente y
+> persistida en base, §1.2) y la **idempotencia de `/api/mide/report`**. Ver
+> [`api.md`](./api.md) y [`base-de-datos.md`](./base-de-datos.md). Lo de
+> **OTA** sigue pendiente y desactivado (secciones 2 y siguientes, sin cambios).
 
 > Todo lo del firmware está **desactivado por defecto**: OTA no consulta nada,
 > el motor de alarmas evalúa y loguea pero **no** hace `POST /api/mide/event`
@@ -55,10 +56,24 @@ La tabla `events` ganó una columna `metadata jsonb` (migración
 `20260905120001`). Se eligió jsonb —y no columnas escalares— porque la forma
 todavía se está afinando en el Ensayo 2.
 
-### 1.2 Notificaciones
+### 1.2 Notificaciones por e-mail (Ensayo 2) — IMPLEMENTADO
 
-Sin cambios respecto de lo ya documentado en `api.md`: las notificaciones a
-usuario siguen sin implementarse. El firmware sólo inserta el evento.
+`/api/mide/event` ahora envía e-mail vía Resend cuando el motor del firmware
+genera una alerta real (`metadata.reason` ∈ `GRAVEDAD` /
+`PERSISTENCIA_ASCENDENTE` / `PERSISTENCIA_ESTABLE`) → **ALERTA**, y cuando
+llega el cierre (`endedAt`) → **RECUPERACIÓN**. El firmware no cambia: sigue
+mandando exactamente los mismos POST. La idempotencia del e-mail está
+persistida en la base en dos fases (reserva con lease de 2 min +
+confirmación tras el OK del proveedor), así que un reintento del mismo
+`eventId` no reenvía y una caída del proceso entre reserva y envío se
+reintenta en vez de perderse. Detalle completo en
+[`api.md`](./api.md#notificaciones-por-e-mail-ensayo-2).
+
+Variables de entorno nuevas (dedicadas): `MIDE_RESEND_API_KEY`,
+`MIDE_ALERT_EMAIL_FROM`, `MIDE_ALERT_EMAIL_TO`. Migraciones
+`20260905120002_mide_event_notifications.sql` (ya aplicada) +
+`20260905120003_mide_event_notification_lease.sql` (incremental, falta aplicar
+— agrega el lease a prueba de caídas).
 
 ## 2. OTA → infraestructura nueva (no existe hoy)
 
@@ -142,8 +157,11 @@ Sin cambios requeridos. Notas:
 | Enviar eventos (apertura) con idempotencia por `eventId` | **hecho** | — | — |
 | Contrato de `/api/mide/event` con metadata del motor (`metadata jsonb`) | **hecho** (`20260905120001`) | no | — |
 | Cierre/recuperación de evento (`ended_at`, `peak_value`, `status`) | **hecho** (`mide_upsert_event`) | no | — |
+| E-mail de ALERTA / RECUPERACIÓN, idempotente y persistido en base | **hecho** (`20260905120002`) | no | — |
+| Idempotencia del e-mail a prueba de caídas (claim/confirm + lease) | **hecho en código; falta migración** (`20260905120003`) | no | — |
 | Idempotencia de `/api/mide/report` (`unique` + upsert) | **hecho** (`20260905120000`) | no | — |
-| Aplicar migraciones + grants a la base real (manual) | **pendiente operativo** | no | sí |
+| Aplicar migraciones + grants a la base real (manual: `120000/001` + `003`; `002` ya aplicada) | **pendiente operativo** | no | sí |
+| Cargar `MIDE_RESEND_API_KEY` / `MIDE_ALERT_EMAIL_FROM` / `MIDE_ALERT_EMAIL_TO` en Vercel + local | **pendiente operativo** | no | sólo para el e-mail |
 | Host de manifiesto + binarios HTTPS + CA | pendiente | **sí** | sí |
 | `firmwareChannel` / rollout por dispositivo en `/config` | pendiente | no | recomendable |
 | Firma del binario + Secure Boot | pendiente | no | **sí (antes de comercializar)** |

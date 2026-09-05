@@ -1,14 +1,20 @@
 // In-memory stand-in for the MIDE Supabase client, used by the route tests.
 // It emulates only what the /api/mide/* handlers actually call:
 //   - from("devices").select(...).eq(...).maybeSingle()
-//   - rpc("mide_upsert_event", ...)   -> single-row-per-episode upsert
-//   - rpc("mide_ingest_report", ...)  -> one-row-per-period idempotent upsert
+//   - from("device_config").select(...).eq(...).maybeSingle()
+//   - rpc("mide_upsert_event", ...)               -> single-row-per-episode upsert
+//   - rpc("mide_claim_event_notification", ...)   -> per-kind lease claim
+//   - rpc("mide_confirm_event_notification", ...) -> per-kind confirmed-sent mark
+//   - rpc("mide_release_event_notification", ...) -> per-kind claim rollback
+//   - rpc("mide_ingest_report", ...)              -> one-row-per-period idempotent upsert
 // and it enforces the same uniqueness / "keep the most complete" rules the
 // real Postgres functions do, so idempotency can be asserted without a DB.
 
 export type FakeDevice = { id: string; device_code: string; active: boolean };
+export type FakeDeviceConfig = { device_id: string; max_threshold: number | null };
 
 type FakeEventRow = {
+  id: string;
   device_id: string;
   event_uid: string;
   event_type: string;
@@ -19,6 +25,10 @@ type FakeEventRow = {
   peak_value: number | null;
   status: "open" | "resolved";
   metadata: Record<string, unknown>;
+  alert_notified_at: string | null;
+  recovery_notified_at: string | null;
+  alert_notify_claimed_at: string | null;
+  recovery_notify_claimed_at: string | null;
 };
 
 type FakeMeasurementRow = {
@@ -33,20 +43,33 @@ type FakeMeasurementRow = {
   sample_count: number;
 };
 
+let eventIdCounter = 0;
+
 export class FakeSupabase {
+  // Mirrors the lease in mide_claim_event_notification (interval '2 minutes').
+  static readonly NOTIFY_LEASE_MS = 2 * 60 * 1000;
+
   devices: FakeDevice[];
+  deviceConfigs: FakeDeviceConfig[];
   events = new Map<string, FakeEventRow>();
   measurements = new Map<string, FakeMeasurementRow>();
   configVersion = 1;
 
-  constructor(devices: FakeDevice[]) {
+  constructor(devices: FakeDevice[], deviceConfigs: FakeDeviceConfig[] = []) {
     this.devices = devices;
+    this.deviceConfigs = deviceConfigs;
   }
 
   from(table: string) {
-    if (table !== "devices") {
+    let source: Record<string, unknown>[];
+    if (table === "devices") {
+      source = this.devices as unknown as Record<string, unknown>[];
+    } else if (table === "device_config") {
+      source = this.deviceConfigs as unknown as Record<string, unknown>[];
+    } else {
       throw new Error(`FakeSupabase: unexpected table "${table}"`);
     }
+
     const filters: Record<string, unknown> = {};
     const builder = {
       select: () => builder,
@@ -55,8 +78,8 @@ export class FakeSupabase {
         return builder;
       },
       maybeSingle: () => {
-        const match = this.devices.find((d) =>
-          Object.entries(filters).every(([k, v]) => (d as Record<string, unknown>)[k] === v)
+        const match = source.find((r) =>
+          Object.entries(filters).every(([k, v]) => r[k] === v)
         );
         return Promise.resolve({ data: match ? { ...match } : null, error: null });
       },
@@ -66,8 +89,45 @@ export class FakeSupabase {
 
   rpc(name: string, args: Record<string, unknown>) {
     if (name === "mide_upsert_event") return Promise.resolve(this.#upsertEvent(args));
+    if (name === "mide_claim_event_notification") {
+      return Promise.resolve(this.#claimNotification(args));
+    }
+    if (name === "mide_confirm_event_notification") {
+      return Promise.resolve(this.#confirmNotification(args));
+    }
+    if (name === "mide_release_event_notification") {
+      return Promise.resolve(this.#releaseNotification(args));
+    }
     if (name === "mide_ingest_report") return Promise.resolve(this.#ingestReport(args));
     throw new Error(`FakeSupabase: unexpected rpc "${name}"`);
+  }
+
+  #eventById(id: string): FakeEventRow | undefined {
+    for (const row of this.events.values()) if (row.id === id) return row;
+    return undefined;
+  }
+
+  /**
+   * Test helper: model a worker that won a notification claim and then died
+   * before confirming (or releasing) it — age every outstanding claim past
+   * the lease so the next claim call can reclaim it.
+   */
+  abandonClaims(): void {
+    const stale = new Date(Date.now() - FakeSupabase.NOTIFY_LEASE_MS - 60_000).toISOString();
+    for (const row of this.events.values()) {
+      if (row.alert_notify_claimed_at != null && row.alert_notified_at == null) {
+        row.alert_notify_claimed_at = stale;
+      }
+      if (row.recovery_notify_claimed_at != null && row.recovery_notified_at == null) {
+        row.recovery_notify_claimed_at = stale;
+      }
+    }
+  }
+
+  static #cols(kind: unknown) {
+    return kind === "recovery"
+      ? { sent: "recovery_notified_at" as const, claim: "recovery_notify_claimed_at" as const }
+      : { sent: "alert_notified_at" as const, claim: "alert_notify_claimed_at" as const };
   }
 
   #upsertEvent(a: Record<string, unknown>) {
@@ -80,7 +140,8 @@ export class FakeSupabase {
     const existing = this.events.get(key);
 
     if (!existing) {
-      this.events.set(key, {
+      const row: FakeEventRow = {
+        id: `evt-${++eventIdCounter}`,
         device_id: deviceId,
         event_uid: eventUid,
         event_type: a.p_type as string,
@@ -91,9 +152,24 @@ export class FakeSupabase {
         peak_value: (a.p_peak_value as number | null) ?? null,
         status: closing ? "resolved" : "open",
         metadata: { ...incomingMeta },
-      });
+        alert_notified_at: null,
+        recovery_notified_at: null,
+        alert_notify_claimed_at: null,
+        recovery_notify_claimed_at: null,
+      };
+      this.events.set(key, row);
       return {
-        data: [{ was_inserted: true, event_status: closing ? "resolved" : "open" }],
+        data: [
+          {
+            was_inserted: true,
+            event_status: row.status,
+            event_id: row.id,
+            event_value: row.value_at_start,
+            event_peak: row.peak_value,
+            event_started_at: row.started_at,
+            event_ended_at: row.ended_at,
+          },
+        ],
         error: null,
       };
     }
@@ -103,7 +179,60 @@ export class FakeSupabase {
     existing.severity = a.p_severity as string;
     if (closing) existing.status = "resolved";
     existing.metadata = { ...existing.metadata, ...incomingMeta };
-    return { data: [{ was_inserted: false, event_status: existing.status }], error: null };
+    return {
+      data: [
+        {
+          was_inserted: false,
+          event_status: existing.status,
+          event_id: existing.id,
+          event_value: existing.value_at_start,
+          event_peak: existing.peak_value,
+          event_started_at: existing.started_at,
+          event_ended_at: existing.ended_at,
+        },
+      ],
+      error: null,
+    };
+  }
+
+  // Wins the claim only if the kind is not already confirmed-sent AND there is
+  // no live lease (no claim, or the last claim is older than NOTIFY_LEASE_MS).
+  #claimNotification(a: Record<string, unknown>) {
+    const row = this.#eventById(a.p_event_id as string);
+    if (!row) return { data: false, error: null };
+    const { sent, claim } = FakeSupabase.#cols(a.p_kind);
+    if (row[sent] != null) return { data: false, error: null };
+    const claimedAt = row[claim];
+    const leaseAlive =
+      claimedAt != null && Date.now() - Date.parse(claimedAt) < FakeSupabase.NOTIFY_LEASE_MS;
+    if (leaseAlive) return { data: false, error: null };
+    row[claim] = new Date().toISOString();
+    return { data: true, error: null };
+  }
+
+  // Permanent "sent" mark, written only after the provider accepts. Clears the
+  // lease. Idempotent.
+  #confirmNotification(a: Record<string, unknown>) {
+    const row = this.#eventById(a.p_event_id as string);
+    if (row) {
+      const { sent, claim } = FakeSupabase.#cols(a.p_kind);
+      if (row[sent] == null) {
+        row[sent] = new Date().toISOString();
+        row[claim] = null;
+      }
+    }
+    return { data: null, error: null };
+  }
+
+  // Drop the lease without confirming (send failed, process still alive).
+  // Never touches an already-confirmed kind.
+  #releaseNotification(a: Record<string, unknown>) {
+    const row = this.#eventById(a.p_event_id as string);
+    if (row) {
+      const { sent, claim } = FakeSupabase.#cols(a.p_kind);
+      if (row[sent] == null) row[claim] = null;
+    }
+    return { data: null, error: null };
   }
 
   #ingestReport(a: Record<string, unknown>) {
