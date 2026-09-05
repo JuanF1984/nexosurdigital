@@ -16,6 +16,15 @@ entorno aparte), después de que se aplicaran ahí los permisos mínimos de
 `service_role` y la función `mide_ingest_report` (ver
 [`base-de-datos.md`](./base-de-datos.md#permisos-reales-en-supabase)).
 
+> **Ensayo 2 (pendiente de re-validar contra la base real):** `/api/mide/event`
+> (fila única por episodio: apertura + cierre/recuperación, `metadata jsonb`) y
+> `/api/mide/report` (idempotencia con `unique` + upsert) cambiaron. Están
+> cubiertos por **tests automatizados** (`vitest`, `src/**/route.test.ts` +
+> `src/lib/mide/validation.test.ts`, con un doble en memoria del cliente
+> Supabase). Falta aplicar a mano las migraciones `20260905120000` /
+> `20260905120001` y sus `grant` sobre la base real y repasar
+> `scripts/test-mide.mjs` contra ella.
+
 Se ejecutó `scripts/test-mide.mjs`:
 
 ```text
@@ -91,15 +100,39 @@ Cada elemento de `metrics`:
 No se aceptan campos desconocidos, ni en el cuerpo ni en cada elemento de
 `metrics`.
 
+No se acepta la **misma `metric` dos veces** en un mismo reporte (`400`): el
+upsert idempotente no puede tocar dos veces la misma fila lógica en una sola
+sentencia.
+
 ### Comportamiento
 
 1. Busca el dispositivo por `device_code = deviceId`.
 2. Si no existe → `404`. Si existe pero `active = false` → `403`.
-3. Inserta una fila en `measurements` por cada elemento de `metrics`,
+3. Hace un **upsert** de una fila en `measurements` por cada elemento de
+   `metrics` sobre la clave natural `(device_id, metric, period_start)`,
    actualiza `last_seen_at` (siempre) y `firmware_version` (si se envió),
    todo en una sola transacción (función `mide_ingest_report`, ver
    [`base-de-datos.md`](./base-de-datos.md#atomicidad-de-apimidereport)).
 4. Responde con la versión de configuración actual del dispositivo.
+
+### Idempotencia
+
+`(device_id, metric, period_start)` es **único** en `measurements`. Un reintento
+del ESP32 (no recibió el `200` a tiempo) **no** crea otra fila:
+
+- reintento idéntico → la fila queda igual (update no-op);
+- reintento que además combinó una ventana más larga en el dispositivo
+  (mismo `period_start`, `period_end` más tardío y `sample_count` mayor) →
+  se queda la versión **más completa**;
+- reintento más viejo o más corto que lo ya guardado → se ignora
+  (`sample_count` menor); no se pierde el dato bueno.
+
+Esto corrige el hallazgo del primer ensayo prolongado (40 grupos de
+mediciones duplicadas por reintentos, ~1,5 % de las filas; ver
+[`analisis-prueba-prolongada/informe.md`](./analisis-prueba-prolongada/informe.md)
+§2.3). Migración: `supabase/migrations/20260905120000_mide_report_idempotency.sql`
+(incluye la deduplicación de las filas ya existentes antes de crear el
+constraint).
 
 ### Respuesta exitosa (`200`)
 
@@ -145,94 +178,121 @@ también (si hubiera fallado, la transacción entera se habría abortado y
 
 ## `POST /api/mide/event`
 
-Reporta un evento/alarma.
+Abre **o** cierra un episodio térmico. **Una fila por episodio**, identificada
+por `(device_id, event_uid)`. El primer POST (sin `endedAt`) crea/abre; un POST
+posterior con el **mismo `eventId`** más `endedAt` (+ `peakValue`) actualiza y
+**resuelve la misma fila**.
+
+Apertura:
 
 ```json
 {
   "deviceId": "mide-frio-001",
-  "eventId": "esp32-generated-id-0001",
+  "eventId": "mide-frio-001-h812345678",
   "type": "TEMP_HIGH",
-  "severity": "warning",
+  "severity": "critical",
   "startedAt": "2026-08-18T08:17:32-03:00",
-  "value": 8.6
+  "value": -9.78,
+  "metadata": { "reason": "GRAVEDAD", "band": 2, "maxDeviationC": 5.22,
+                "trend": "ASCENDIENDO", "trendSlopeCPerMin": 0.61,
+                "timeOutOfRangeMs": 240000 }
+}
+```
+
+Cierre / recuperación (mismo `eventId`):
+
+```json
+{
+  "deviceId": "mide-frio-001",
+  "eventId": "mide-frio-001-h812345678",
+  "type": "TEMP_HIGH",
+  "severity": "critical",
+  "startedAt": "2026-08-18T08:17:32-03:00",
+  "endedAt": "2026-08-18T08:42:10-03:00",
+  "peakValue": -8.10,
+  "metadata": { "reason": "GRAVEDAD", "band": 2, "maxDeviationC": 6.90,
+                "durationMs": 1480000 }
 }
 ```
 
 | Campo       | Tipo             | Reglas                                                        |
 |-------------|------------------|-----------------------------------------------------------------|
 | `deviceId`  | string           | 1-64 caracteres, `[A-Za-z0-9_-]`. Debe existir.                 |
-| `eventId`   | string           | 1-128 caracteres, `[A-Za-z0-9_-]`. Generado por el dispositivo. |
-| `type`      | string           | `MAYUSCULAS_CON_GUION_BAJO`, ej. `TEMP_HIGH`, `POWER_LOSS`. No es un enum cerrado — cualquier tipo de evento futuro es válido si cumple el patrón. |
+| `eventId`   | string           | 1-128 caracteres, `[A-Za-z0-9_-]`. Generado por el dispositivo, estable entre reintentos y reinicios. |
+| `type`      | string           | `MAYUSCULAS_CON_GUION_BAJO`, ej. `TEMP_HIGH`, `POWER_LOSS`. No es un enum cerrado. |
 | `severity`  | string (enum)    | `info` \| `warning` \| `critical`.                              |
 | `startedAt` | string (ISO 8601)| Obligatorio, con offset o `Z`.                                  |
-| `value`     | number \| null   | Opcional.                                                        |
+| `value`     | number \| null   | Opcional. Temperatura al disparo de la alerta.                  |
+| `endedAt`   | string (ISO 8601) \| null | **Opcional.** Si está presente, este POST **cierra** el episodio. No puede ser anterior a `startedAt`. |
+| `peakValue` | number \| null   | Opcional. Temperatura pico del episodio (se manda en el cierre). |
+| `metadata`  | objeto \| null   | Opcional. Objeto **plano** (sólo valores escalares), ≤ 20 claves, claves ≤ 40 car., strings ≤ 64 car., ≤ 1 KB serializado. Metadata experimental del motor de alarmas. |
 
-### Idempotencia
+`status` lo **deriva el backend**: `resolved` si el POST trae `endedAt`,
+`open` si no. El firmware nunca envía `status`.
 
-`device_id + event_uid` es único en la base. Si llega exactamente el mismo
-`eventId` para el mismo dispositivo:
+Sigue siendo un **contrato estricto**: cualquier campo fuera de esa lista → `400`.
 
-- **no** se duplica la fila,
-- se responde éxito igual (`{ "ok": true, "duplicate": true }`),
-- **no** se dispara una segunda notificación futura (aunque las
-  notificaciones en sí no están implementadas todavía).
+### Idempotencia y modelo de fila única
 
-Esto permite que el dispositivo reintente enviar un evento si perdió la
-respuesta del servidor, sin lógica adicional de su lado.
+`(device_id, event_uid)` es único. Todo POST es idempotente:
+
+| Situación | Efecto |
+|---|---|
+| 1er POST sin `endedAt` | crea la fila, `status = open`. Respuesta `{ ok, duplicate: false }`. |
+| Reintento de la apertura (mismo `eventId`, sin `endedAt`) | no crea otra fila, no regresa nada. Respuesta `{ ok, duplicate: true }`. |
+| POST con `endedAt` sobre una fila abierta | actualiza **esa** fila: `ended_at`, `peak_value`, `status = resolved`, `metadata` fusionada. Respuesta `{ ok, resolved: true, created: false }`. |
+| POST con `endedAt` sin apertura previa | crea la fila ya `resolved` (caso "cierre antes que apertura"). Respuesta `{ ok, resolved: true, created: true }`. |
+| Reintento del cierre | idempotente, la fila queda igual. |
+
+`metadata` se **fusiona** (`||` de jsonb): los valores de la apertura y los
+finales del cierre conviven en la misma fila.
+
+Esto permite que el ESP32 reintente cualquier POST tras perder la respuesta del
+servidor, sin lógica adicional de su lado, y sin duplicar filas ni
+notificaciones futuras.
 
 ### Respuesta exitosa (`200`)
 
-```json
-{ "ok": true, "duplicate": false }
-```
-
-o, en un reintento:
-
-```json
-{ "ok": true, "duplicate": true }
-```
+Apertura: `{ "ok": true, "duplicate": false }` (o `duplicate: true` en un
+reintento). Cierre: `{ "ok": true, "resolved": true, "created": false }`
+(o `created: true` si el cierre llegó antes que la apertura).
 
 ### Errores
 
 | Código | Motivo                                          |
 |--------|--------------------------------------------------|
-| `400`  | JSON inválido, campo desconocido o inválido.     |
+| `400`  | JSON inválido, campo desconocido o inválido (incluye `endedAt` anterior a `startedAt`, `metadata` no plana o demasiado grande). |
 | `401`  | Falta o no coincide `Authorization: Bearer`.     |
 | `404`  | Dispositivo inexistente.                          |
 | `415`  | `Content-Type` distinto de `application/json`.   |
 | `500`  | Error interno.                                    |
 
-### Pendiente
+Migración: `supabase/migrations/20260905120001_mide_event_close_and_metadata.sql`
+(agrega `events.metadata jsonb` y la función `mide_upsert_event`).
 
-Esta primera versión solo inserta el evento inicial. No actualiza
-`peak_value`, `ended_at`, `status` ni `notified_at` después de la
-inserción, ni envía notificaciones nuevas — se documenta como trabajo
-futuro, no se implementa ahora.
+### Notificaciones
+
+Sin cambios: las notificaciones a usuario siguen sin implementarse. El
+endpoint sólo persiste el evento y su cierre.
 
 ### Validado contra la base real
 
-Se envió un evento contra `mide-frio-001` con un `eventId` nuevo:
+**Contrato anterior (una sola inserción, 6 campos):** se validó contra
+`mide-frio-001` que un `eventId` nuevo respondía `{ ok: true, duplicate: false }`
+y un reenvío del mismo `eventId` respondía `{ ok: true, duplicate: true }`, con
+la idempotencia garantizada por el índice único `(device_id, event_uid)`
+(código `23505`).
 
-```json
-{ "ok": true, "duplicate": false }
-```
-
-y se reenvió exactamente el mismo `eventId`:
-
-```json
-{ "ok": true, "duplicate": true }
-```
-
-Igual que con `measurements`, `service_role` solo tiene `INSERT` sobre
-`events` (no `SELECT`), así que no se hizo un `SELECT COUNT(*)` posterior
-para contar filas. La idempotencia quedó comprobada mediante el propio
-constraint de Postgres: `duplicate: true` en la respuesta solo puede
-ocurrir porque el segundo `insert` chocó contra el índice único
-`(device_id, event_uid)` y la API capturó ese código de error (`23505`) —
-es una garantía del motor de base de datos, no solo de la lógica de la
-API. Esto es justamente lo que permite que un dispositivo reintente un
-evento después de perder la comunicación, sin generar una segunda fila
-lógica ni una segunda notificación futura.
+**Contrato actual (fila única por episodio, con `endedAt` / `peakValue` /
+`metadata` y la función `mide_upsert_event`):** validado con tests
+automatizados en `src/app/api/mide/event/route.test.ts` (vitest) contra un
+doble en memoria que reproduce el constraint único y la semántica del upsert:
+apertura → `open`; reintento de apertura → `duplicate: true` sin segunda fila;
+cierre con el mismo `eventId` → **la misma fila** pasa a `resolved` con
+`ended_at`/`peak_value`; cierre antes que la apertura → fila creada ya
+`resolved`; `metadata` fusionada entre apertura y cierre. **Pendiente:**
+re-validar contra la base real de Supabase una vez aplicada la migración
+`20260905120001` y sus `grant` (`update, select on events to service_role`).
 
 ## `GET /api/mide/config`
 

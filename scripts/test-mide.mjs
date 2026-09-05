@@ -186,6 +186,50 @@ await check("report: múltiples métricas -> 200", async () => {
   assert(body?.ok === true, "esperaba ok:true");
 });
 
+await check("report: misma métrica dos veces en un reporte -> 400", async () => {
+  const { status } = await post(
+    "/api/mide/report",
+    validReportPayload({ metrics: [validMetric(), validMetric({ min: 3.5 })] })
+  );
+  assert(status === 400, `esperaba 400, recibí ${status}`);
+});
+
+// Idempotencia: el mismo período reenviado no debe duplicar filas. Este
+// script no puede hacer SELECT sobre `measurements` (service_role sólo tiene
+// INSERT/UPDATE), así que se verifica que la API responde 200 en todos los
+// reenvíos; el conteo de filas se comprueba con un SELECT manual sobre la
+// base tras correr el script (ver docs/mide/api.md#idempotencia).
+const idemPeriodStart = nowIso(-3600);
+const idemPeriodEnd = nowIso(-3300);
+
+await check("report: período nuevo -> 200", async () => {
+  const { status } = await post(
+    "/api/mide/report",
+    validReportPayload({ periodStart: idemPeriodStart, periodEnd: idemPeriodEnd })
+  );
+  assert(status === 200, `esperaba 200, recibí ${status}`);
+});
+
+await check("report: MISMO período reenviado idéntico -> 200 (upsert, no duplica)", async () => {
+  const { status } = await post(
+    "/api/mide/report",
+    validReportPayload({ periodStart: idemPeriodStart, periodEnd: idemPeriodEnd })
+  );
+  assert(status === 200, `esperaba 200, recibí ${status}`);
+});
+
+await check("report: mismo período con ventana más ancha -> 200 (se queda la más completa)", async () => {
+  const { status } = await post(
+    "/api/mide/report",
+    validReportPayload({
+      periodStart: idemPeriodStart,
+      periodEnd: nowIso(-3000),
+      metrics: [validMetric({ samples: 118 })],
+    })
+  );
+  assert(status === 200, `esperaba 200, recibí ${status}`);
+});
+
 // --- /api/mide/event ------------------------------------------------------
 
 const eventId = `test-event-${Date.now()}`;
@@ -216,6 +260,66 @@ await check("event: reenviar mismo eventId -> 200 duplicate:true, sin duplicar f
   assert(status === 200, `esperaba 200, recibí ${status}`);
   assert(body?.ok === true, "esperaba ok:true");
   assert(body?.duplicate === true, "esperaba duplicate:true en el reintento");
+});
+
+const eventStart = nowIso(-1800);
+
+await check("event: cierre con endedAt sobre el mismo eventId -> 200 resolved:true", async () => {
+  const { status, body } = await post("/api/mide/event", {
+    deviceId,
+    eventId,
+    type: "TEMP_HIGH",
+    severity: "warning",
+    startedAt: eventStart,
+    endedAt: nowIso(0),
+    peakValue: 9.4,
+    metadata: { reason: "PERSISTENCIA_ASCENDENTE", band: 1, durationMs: 1800000 },
+  });
+  assert(status === 200, `esperaba 200, recibí ${status}`);
+  assert(body?.ok === true, "esperaba ok:true");
+  assert(body?.resolved === true, "esperaba resolved:true en el cierre");
+});
+
+await check("event: reintento del cierre -> 200 resolved:true (idempotente)", async () => {
+  const { status, body } = await post("/api/mide/event", {
+    deviceId,
+    eventId,
+    type: "TEMP_HIGH",
+    severity: "warning",
+    startedAt: eventStart,
+    endedAt: nowIso(0),
+    peakValue: 9.4,
+  });
+  assert(status === 200, `esperaba 200, recibí ${status}`);
+  assert(body?.ok === true && body?.resolved === true, "esperaba ok:true resolved:true");
+});
+
+await check("event: cierre antes que apertura -> crea fila ya resuelta", async () => {
+  const closeFirstId = `test-event-close-first-${Date.now()}`;
+  const { status, body } = await post("/api/mide/event", {
+    deviceId,
+    eventId: closeFirstId,
+    type: "TEMP_HIGH",
+    severity: "critical",
+    startedAt: nowIso(-600),
+    endedAt: nowIso(0),
+    peakValue: -6.2,
+  });
+  assert(status === 200, `esperaba 200, recibí ${status}`);
+  assert(body?.ok === true && body?.resolved === true && body?.created === true,
+    "esperaba ok:true resolved:true created:true");
+});
+
+await check("event: metadata anidada -> 400", async () => {
+  const { status } = await post("/api/mide/event", {
+    deviceId,
+    eventId: `test-event-badmeta-${Date.now()}`,
+    type: "TEMP_HIGH",
+    severity: "warning",
+    startedAt: nowIso(0),
+    metadata: { nested: { a: 1 } },
+  });
+  assert(status === 400, `esperaba 400, recibí ${status}`);
 });
 
 await check("event: dispositivo inexistente -> 404", async () => {

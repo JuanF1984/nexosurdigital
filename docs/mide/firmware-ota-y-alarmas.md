@@ -1,9 +1,15 @@
 # Firmware MIDE Frío: OTA + motor de alarmas — impacto en backend / configuración
 
 **Origen:** cambios en el firmware `mide-frio` (repo aparte, `Documentos/arduino/mide-frio`),
-versión `0.2.0-dev`. Este documento resume **qué necesita o va a necesitar del
-lado de Nexo Sur**. No se modificó ningún endpoint ni la base en esta etapa;
-es una lista de trabajo futuro coordinada.
+versión `0.2.1-dev`. Este documento resume **qué necesita o va a necesitar del
+lado de Nexo Sur**.
+
+> **Actualización (Ensayo 2):** ya se implementó, coordinado entre firmware y
+> backend, la parte de **eventos** (fila única por episodio: abrir → alerta →
+> cerrar/recuperar, idempotente, con `events.metadata jsonb`) y la
+> **idempotencia de `/api/mide/report`**. Ver [`api.md`](./api.md) y
+> [`base-de-datos.md`](./base-de-datos.md). Lo de **OTA** sigue pendiente y
+> desactivado (secciones 2 y siguientes, sin cambios).
 
 > Todo lo del firmware está **desactivado por defecto**: OTA no consulta nada,
 > el motor de alarmas evalúa y loguea pero **no** hace `POST /api/mide/event`
@@ -31,29 +37,23 @@ El firmware ya arma eventos con el **contrato estricto actual**, sin cambios:
   `PERSISTENCIA_ESTABLE` → `warning`.
 - Un episodio genera **un** evento (no uno por lectura).
 
-### 1.1 Metadata que hoy NO cabe en el contrato (propuesta, no implementada)
+### 1.1 Metadata del motor — IMPLEMENTADO
 
-El motor produce información que sería muy útil tener en `events` para el
-Ensayo 2 y para afinar la lógica, pero el contrato actual rechaza campos
-desconocidos. **Propuesta de extensión** (a decidir; el firmware la puede
-mandar en cuanto el backend la acepte):
+El contrato de `/api/mide/event` ahora acepta 3 campos **opcionales**:
+`endedAt`, `peakValue` y `metadata` (objeto jsonb plano). Ver
+[`api.md`](./api.md#post-apimideevent).
 
-| Campo sugerido | Tipo | Significado |
-|---|---|---|
-| `band` | `0\|1\|2` | banda de gravedad alcanzada (desviación sobre el umbral) |
-| `maxDeviationC` | number | desviación máxima del episodio (°C sobre el umbral) |
-| `trend` | `"ASCENDIENDO"\|"ESTABLE"\|"RECUPERANDO"` | tendencia al momento de alertar |
-| `trendSlopeCPerMin` | number | pendiente estimada (°C/min) |
-| `timeOutOfRangeMs` | number | tiempo fuera de rango al alertar |
-| `reason` | `"GRAVEDAD"\|"PERSISTENCIA_ASCENDENTE"\|"PERSISTENCIA_ESTABLE"` | motivo del disparo |
+- **Apertura** (POST sin `endedAt`): `metadata` con `band`, `maxDeviationC`,
+  `trend`, `trendSlopeCPerMin`, `reason`, `timeOutOfRangeMs`.
+- **Cierre/recuperación** (POST con el mismo `eventId` + `endedAt` +
+  `peakValue`): `metadata` con `reason`, `band` (máx), `maxDeviationC` (máx),
+  `durationMs`. Se **fusiona** con la de la apertura en la misma fila.
+- `status` (`open` / `resolved`) lo deriva el backend de la presencia de
+  `endedAt`; el firmware no lo manda.
 
-Y al **cerrar** el episodio (hoy el firmware sólo lo loguea; el contrato no
-tiene "update de evento"): `endedAt`, `peakValue`, `durationMs`, `hadAlert`.
-La tabla `events` ya tiene columnas `ended_at`, `peak_value`, `status` sin
-usar — encajaría un `PATCH`/segundo `POST` idempotente para cerrar.
-
-Mientras no exista, toda esa metadata queda sólo en los logs serie `[ALARM]`
-del dispositivo.
+La tabla `events` ganó una columna `metadata jsonb` (migración
+`20260905120001`). Se eligió jsonb —y no columnas escalares— porque la forma
+todavía se está afinando en el Ensayo 2.
 
 ### 1.2 Notificaciones
 
@@ -127,21 +127,23 @@ Sin cambios requeridos. Notas:
 - El motor de alarmas usa `max_threshold` (umbral alto), `hysteresis` y
   `recovery_delay_seconds` **tal como están**. Todo lo demás (bandas,
   tolerancias) es experimental y vive en el firmware, no en la config.
-- El **fallback local** del firmware sigue siendo `min 2 / max 8` (perfil
-  heladera). El prototipo es un freezer con config real `-15 / -25`. Mientras
-  el dispositivo no tenga la config del servidor (primeros ~30 s tras
-  encender, o si `/config` falla), el motor de alarmas usa el fallback y con
-  un freezer a −18…−15 °C simplemente **no dispara**. En cuanto llega la
-  config real pasa a −15. No es un bug, pero conviene tenerlo presente; si se
-  quiere, se puede alinear el fallback del firmware al perfil de despliegue.
+- El **fallback local** del firmware ya **no** es perfil heladera. Ahora, al
+  arrancar, la prioridad es: (1) última config válida persistida en NVS de un
+  `/config` anterior; (2) si no hay, fallback de fábrica **perfil freezer**
+  `min -25 / max -15`. En ambos casos se sigue pidiendo `/config` y, cuando
+  llega, reemplaza y se re-persiste. Un freezer que arranca offline ya no
+  queda ciego con un perfil +2/+8. (Firmware `0.2.1-dev`, ver
+  `mide-frio/docs/firmware.md`.)
 
 ## 4. Resumen: qué hay que hacer y cuándo
 
-| Ítem | Bloquea Ensayo 2 | Bloquea OTA real | Bloquea producción |
+| Ítem | Estado | Bloquea OTA real | Bloquea producción |
 |---|---|---|---|
-| Nada (enviar eventos con el contrato actual) | — | — | — |
-| Extender contrato de `/api/mide/event` con metadata del motor | no (nice to have) | no | recomendable |
-| Cierre de evento (`ended_at`, `peak_value`) | no | no | recomendable |
-| Host de manifiesto + binarios HTTPS + CA | no | **sí** | sí |
-| `firmwareChannel` / rollout por dispositivo en `/config` | no | no | recomendable |
-| Firma del binario + Secure Boot | no | no | **sí (antes de comercializar)** |
+| Enviar eventos (apertura) con idempotencia por `eventId` | **hecho** | — | — |
+| Contrato de `/api/mide/event` con metadata del motor (`metadata jsonb`) | **hecho** (`20260905120001`) | no | — |
+| Cierre/recuperación de evento (`ended_at`, `peak_value`, `status`) | **hecho** (`mide_upsert_event`) | no | — |
+| Idempotencia de `/api/mide/report` (`unique` + upsert) | **hecho** (`20260905120000`) | no | — |
+| Aplicar migraciones + grants a la base real (manual) | **pendiente operativo** | no | sí |
+| Host de manifiesto + binarios HTTPS + CA | pendiente | **sí** | sí |
+| `firmwareChannel` / rollout por dispositivo en `/config` | pendiente | no | recomendable |
+| Firma del binario + Secure Boot | pendiente | no | **sí (antes de comercializar)** |

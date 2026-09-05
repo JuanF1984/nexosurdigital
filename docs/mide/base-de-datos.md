@@ -77,6 +77,13 @@ Constraints:
 - `period_end > period_start`
 - `sample_count > 0`
 - `min_value <= avg_value <= max_value`
+- **`unique (device_id, metric, period_start)`** — clave natural de un período
+  de reporte. Da **idempotencia** a `POST /api/mide/report`: un reintento del
+  ESP32 hace un upsert sobre esta fila en vez de insertar otra. Agregado por
+  `20260905120000_mide_report_idempotency.sql` (que primero deduplica las
+  filas ya existentes). Ver [`api.md`](./api.md#idempotencia) y
+  [`analisis-prueba-prolongada/informe.md`](./analisis-prueba-prolongada/informe.md)
+  §2.3.
 
 Estas mismas reglas se validan también en `/api/mide/report` antes de
 llegar a la base (ver [`api.md`](./api.md)) — los constraints son la última
@@ -84,7 +91,8 @@ línea de defensa, no la única.
 
 Índice: `(device_id, metric, period_start desc)` para consultas por
 dispositivo/métrica ordenadas en el tiempo (el patrón de acceso esperado
-del futuro dashboard).
+del futuro dashboard). Se mantiene además del índice `all-asc` que crea el
+constraint único (distinto orden de columnas).
 
 `metric` es texto libre a propósito: el diseño no está atado a
 `temperature`, permite `humidity`, `co2`, `voltage`, etc. sin cambiar el
@@ -104,6 +112,7 @@ value_at_start   numeric
 peak_value       numeric
 status           text NOT NULL DEFAULT 'open'   -- open | resolved
 notified_at      timestamptz
+metadata         jsonb NOT NULL DEFAULT '{}'    -- metadata experimental del motor (ver abajo)
 created_at       timestamptz NOT NULL DEFAULT now()
 updated_at       timestamptz NOT NULL DEFAULT now()  -- trigger mide_set_updated_at
 ```
@@ -119,10 +128,32 @@ exclusivamente a temperatura: `TEMP_HIGH`, `TEMP_LOW`, `SENSOR_FAILURE`,
 `DEVICE_STARTED`, `POWER_LOSS`, `POWER_RESTORED`, `CONNECTION_RESTORED`,
 etc., son ejemplos, no una lista cerrada.
 
-En esta primera versión, `/api/mide/event` solo inserta (`value_at_start`);
-no actualiza `peak_value`, `ended_at`, `status` ni `notified_at` después de
-la inserción inicial — eso queda documentado como pendiente (ver
-[`api.md`](./api.md#pendiente)), no implementado ahora.
+### Modelo de fila única por episodio
+
+`/api/mide/event` ahora usa la función `mide_upsert_event` (migración
+`20260905120001_mide_event_close_and_metadata.sql`): **una fila por episodio
+térmico**, identificada por `(device_id, event_uid)`.
+
+- POST sin `endedAt` → `insert` con `status = 'open'`, o no-op si ya existía.
+- POST con `endedAt` (mismo `event_uid`) → `update` de **esa** fila:
+  `ended_at`, `peak_value`, `severity`, `status = 'resolved'`, y `metadata`
+  fusionada (`metadata || excluded.metadata`).
+- POST con `endedAt` sin apertura previa → `insert` ya `resolved`.
+
+`status` lo deriva la base de la presencia de `ended_at`; el firmware nunca lo
+envía. Todo es idempotente: un reintento no crea una segunda fila ni regresa
+`ended_at` / `peak_value` / `status`.
+
+### `events.metadata` (jsonb, experimental)
+
+Objeto plano opcional con la metadata del motor de alarmas del firmware
+(`mide-frio`, `docs/alarmas.md`): `band`, `maxDeviationC`, `trend`,
+`trendSlopeCPerMin`, `reason` (`GRAVEDAD` / `PERSISTENCIA_ASCENDENTE` /
+`PERSISTENCIA_ESTABLE`), `timeOutOfRangeMs`, `durationMs`. Se guarda en jsonb
+—y no en columnas individuales— **a propósito**: la forma todavía se está
+afinando en el Ensayo 2. Permite analizar en SQL qué banda alcanzó un
+episodio, por qué alertó, con qué pendiente y cuánto duró, sin depender de los
+logs serie. No construir dependencias duras sobre su forma todavía.
 
 ## `device_config`
 
@@ -166,7 +197,9 @@ no a través de la migración de este repo — ver
 
 Dentro de una misma transacción, la función:
 
-1. inserta las métricas recibidas en `measurements`,
+1. hace un **upsert** de las métricas recibidas en `measurements`
+   (`insert ... on conflict (device_id, metric, period_start) do update`,
+   quedándose con la versión de mayor `sample_count`),
 2. actualiza `devices.last_seen_at`,
 3. actualiza `devices.firmware_version` si el reporte la incluyó,
 4. lee el `config_version` actual del dispositivo,
@@ -210,18 +243,23 @@ criterio de mínimo privilegio:
 
 ```text
 devices          → SELECT, UPDATE
-measurements     → INSERT
-events           → INSERT
+measurements     → INSERT, UPDATE            (UPDATE: upsert idempotente de /report)
+events           → INSERT, UPDATE, SELECT    (UPDATE + SELECT: upsert + RETURNING de /event)
 device_config    → SELECT
 ```
 
-Esto es intencional, no un descuido: `service_role` **no** tiene permiso de
-`SELECT` sobre `measurements` ni sobre `events`, porque ninguna ruta de
-`/api/mide/*` necesita leer esas tablas hoy (solo insertar). El dashboard
-inicial (`/mide/dashboard`, ver [`dashboard.md`](./dashboard.md)) sí
-necesita leerlas — ese documento tiene el SQL mínimo (`grant select ...`)
-para aplicar a mano cuando se decida ampliar estos permisos; no se aplicó
-automáticamente desde acá.
+`measurements.UPDATE` y `events.UPDATE, SELECT` los **agregan las migraciones
+`20260905120000` / `20260905120001`** (van al final de cada archivo, junto a
+la función): `mide_ingest_report` y `mide_upsert_event` corren
+`SECURITY INVOKER` (con los privilegios de `service_role`, misma postura que
+antes) y ahora hacen `INSERT ... ON CONFLICT DO UPDATE`; `mide_upsert_event`
+además tiene `RETURNING`. Sin esos grants, los upserts fallan con
+`permission denied`. Aplicar a mano sobre la base real junto con la migración.
+
+El dashboard inicial (`/mide/dashboard`, ver [`dashboard.md`](./dashboard.md))
+ya usa `SELECT` sobre `events` (que este cambio habilita) y todavía necesita
+`SELECT` sobre `measurements` — ese documento tiene el SQL para aplicarlo a
+mano cuando se decida.
 
 No hay acceso `anon`/`authenticated` todavía — eso solo tiene sentido
 cuando exista login de MIDE y un modelo de dueño (cliente/organización →
@@ -242,6 +280,16 @@ creada manualmente, antes de escribir esa migración. Por lo tanto:
   levantar un entorno nuevo (desarrollo, staging, CI) desde cero,
 - antes de usarla sobre una base ya existente, debe compararse a mano
   contra el esquema real.
+
+Migraciones posteriores (mismo criterio — **aplicar a mano** sobre la base
+real, previo diff):
+
+- `20260905120000_mide_report_idempotency.sql` — deduplica `measurements`,
+  agrega `unique (device_id, metric, period_start)` y convierte
+  `mide_ingest_report` en un upsert idempotente.
+- `20260905120001_mide_event_close_and_metadata.sql` — agrega
+  `events.metadata jsonb` y la función `mide_upsert_event` (modelo de fila
+  única por episodio: abrir y luego cerrar/recuperar con el mismo `event_uid`).
 
 `supabase/seed.sql` es un archivo distinto, con datos de desarrollo/testing
 (entre ellos el dispositivo `mide-frio-001` y el fixture de dispositivo

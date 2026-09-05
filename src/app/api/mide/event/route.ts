@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
     return mideError(400, validation.error);
   }
 
-  const { deviceId, eventId, type, severity, startedAt, value } = validation.value;
+  const { deviceId, eventId, type, severity, startedAt, value, endedAt, peakValue, metadata } =
+    validation.value;
 
   const supabase = getMideSupabaseClient();
 
@@ -70,26 +71,39 @@ export async function POST(request: NextRequest) {
     return mideError(404, "Dispositivo no encontrado");
   }
 
-  // Idempotency relies on the (device_id, event_uid) unique constraint: a
-  // retried event (device didn't see our previous response) hits a unique
-  // violation (23505) here and is reported back as a successful no-op
-  // instead of creating a duplicate row or a second future notification.
-  const { error: insertError } = await supabase.from("events").insert({
-    device_id: device.id,
-    event_uid: eventId,
-    event_type: type,
-    severity,
-    started_at: startedAt,
-    value_at_start: value,
+  // One row per thermal episode, keyed by (device_id, event_uid). The upsert
+  // in mide_upsert_event makes every POST idempotent:
+  //   - no endedAt  -> creates the row (status 'open'), or is a harmless
+  //     no-op if the device is retrying an open it already sent;
+  //   - with endedAt -> resolves the SAME row (ended_at, peak_value,
+  //     status 'resolved', metadata merged), or creates it already resolved
+  //     if the close somehow arrives before the open.
+  // A retry never creates a second row and never regresses the episode.
+  const { data: rpcRows, error: rpcError } = await supabase.rpc("mide_upsert_event", {
+    p_device_id: device.id,
+    p_event_uid: eventId,
+    p_type: type,
+    p_severity: severity,
+    p_started_at: startedAt,
+    p_value: value,
+    p_ended_at: endedAt,
+    p_peak_value: peakValue,
+    p_metadata: metadata ?? {},
   });
 
-  if (insertError) {
-    if (insertError.code === "23505") {
-      return mideOk({ duplicate: true });
-    }
-    console.error("mide/event: error insertando evento:", insertError.message);
+  if (rpcError) {
+    console.error("mide/event: error registrando evento:", rpcError.message);
     return mideError(500, "Error interno del servidor");
   }
 
-  return mideOk({ duplicate: false });
+  const row = Array.isArray(rpcRows) ? rpcRows[0] : rpcRows;
+  const created = row?.was_inserted ?? true;
+  const resolved = row?.event_status === "resolved";
+
+  // `duplicate` keeps its original meaning (an open POST that changed
+  // nothing). A close POST reports through `resolved` instead.
+  if (endedAt != null) {
+    return mideOk({ resolved, created });
+  }
+  return mideOk({ duplicate: !created });
 }

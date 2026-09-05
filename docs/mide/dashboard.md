@@ -172,9 +172,14 @@ cambios de código, porque `event_type` es texto libre en la base.
 ```text
 devices          → SELECT, UPDATE   (ya alcanza para el dashboard)
 device_config    → SELECT            (ya alcanza para el dashboard)
-measurements     → INSERT            (el dashboard necesita también SELECT)
-events           → INSERT            (el dashboard necesita también SELECT)
+measurements     → INSERT, UPDATE    (el dashboard necesita también SELECT)
+events           → INSERT, UPDATE, SELECT   (SELECT ya lo agrega la migración 20260905120001)
 ```
+
+> La migración `20260905120001_mide_event_close_and_metadata.sql` ya incluye
+> `grant update, select on public.events to service_role` (lo necesita el
+> upsert de `/api/mide/event`), así que tras aplicarla el dashboard ya puede
+> leer `events`. Falta sólo el `SELECT` sobre `measurements`.
 
 El dashboard ya se probó contra la base real y **funciona correctamente
 sin este cambio** — las secciones de mediciones, gráfico y eventos se
@@ -185,6 +190,8 @@ Supabase real (no se ejecutó desde acá):
 
 ```sql
 grant select on public.measurements to service_role;
+-- events: SELECT ya lo otorga la migración 20260905120001; incluir sólo si
+-- esa migración todavía no se aplicó.
 grant select on public.events to service_role;
 ```
 

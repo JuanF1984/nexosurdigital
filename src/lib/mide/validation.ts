@@ -31,7 +31,22 @@ const EVENT_ALLOWED_FIELDS = new Set([
   "severity",
   "startedAt",
   "value",
+  // Optional, added for the single-row episode model (open then close/recover
+  // with the same eventId). A client that never sends these behaves exactly
+  // as before.
+  "endedAt",
+  "peakValue",
+  "metadata",
 ]);
+
+// Experimental alarm-engine metadata is intentionally kept flat and bounded:
+// scalar values only (no nested objects/arrays), few keys, short strings. The
+// column is jsonb so the shape can evolve during Ensayo 2 without a migration,
+// but the payload stays small and predictable.
+const MAX_METADATA_KEYS = 20;
+const MAX_METADATA_KEY_LENGTH = 40;
+const MAX_METADATA_STRING_LENGTH = 64;
+const MAX_METADATA_SERIALIZED_BYTES = 1024;
 
 export type MetricInput = {
   metric: string;
@@ -50,6 +65,8 @@ export type ReportPayload = {
   metrics: MetricInput[];
 };
 
+export type EventMetadata = Record<string, string | number | boolean | null>;
+
 export type EventPayload = {
   deviceId: string;
   eventId: string;
@@ -57,6 +74,9 @@ export type EventPayload = {
   severity: Severity;
   startedAt: string;
   value: number | null;
+  endedAt: string | null;
+  peakValue: number | null;
+  metadata: EventMetadata | null;
 };
 
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -122,6 +142,7 @@ export function validateReportPayload(body: unknown): Result<ReportPayload> {
   }
 
   const parsedMetrics: MetricInput[] = [];
+  const seenMetricNames = new Set<string>();
 
   for (const rawMetric of metrics) {
     if (typeof rawMetric !== "object" || rawMetric === null || Array.isArray(rawMetric)) {
@@ -139,6 +160,14 @@ export function validateReportPayload(body: unknown): Result<ReportPayload> {
     if (typeof metric !== "string" || !METRIC_NAME_REGEX.test(metric)) {
       return { ok: false, error: "metric inválido" };
     }
+
+    // One row per (device, metric, period): a report may not carry the same
+    // metric twice, or the idempotent upsert in mide_ingest_report would try
+    // to touch the same conflict target twice in one statement.
+    if (seenMetricNames.has(metric)) {
+      return { ok: false, error: "metric repetido en el mismo reporte" };
+    }
+    seenMetricNames.add(metric);
 
     if (typeof unit !== "string" || !UNIT_REGEX.test(unit)) {
       return { ok: false, error: "unit inválido" };
@@ -190,7 +219,7 @@ export function validateEventPayload(body: unknown): Result<EventPayload> {
     }
   }
 
-  const { deviceId, eventId, type, severity, startedAt, value } =
+  const { deviceId, eventId, type, severity, startedAt, value, endedAt, peakValue, metadata } =
     body as Record<string, unknown>;
 
   if (!isValidDeviceId(deviceId)) {
@@ -219,6 +248,57 @@ export function validateEventPayload(body: unknown): Result<EventPayload> {
     }
   }
 
+  // endedAt present => this POST closes/resolves the episode identified by
+  // (deviceId, eventId). Absent => it opens (or is a retry of the open).
+  if (endedAt !== undefined && endedAt !== null) {
+    if (!isValidIsoDateTime(endedAt)) {
+      return { ok: false, error: "endedAt inválido" };
+    }
+    if (Date.parse(endedAt) < Date.parse(startedAt)) {
+      return { ok: false, error: "endedAt no puede ser anterior a startedAt" };
+    }
+  }
+
+  if (peakValue !== undefined && peakValue !== null) {
+    if (typeof peakValue !== "number" || !Number.isFinite(peakValue)) {
+      return { ok: false, error: "peakValue inválido" };
+    }
+  }
+
+  let parsedMetadata: EventMetadata | null = null;
+  if (metadata !== undefined && metadata !== null) {
+    if (typeof metadata !== "object" || Array.isArray(metadata)) {
+      return { ok: false, error: "metadata debe ser un objeto plano" };
+    }
+    const entries = Object.entries(metadata as Record<string, unknown>);
+    if (entries.length > MAX_METADATA_KEYS) {
+      return { ok: false, error: "metadata excede la cantidad máxima de claves" };
+    }
+    for (const [key, metaValue] of entries) {
+      if (key.length === 0 || key.length > MAX_METADATA_KEY_LENGTH) {
+        return { ok: false, error: "clave de metadata inválida" };
+      }
+      const t = typeof metaValue;
+      if (metaValue === null || t === "number" || t === "boolean") {
+        if (t === "number" && !Number.isFinite(metaValue as number)) {
+          return { ok: false, error: "valor numérico de metadata inválido" };
+        }
+        continue;
+      }
+      if (t === "string") {
+        if ((metaValue as string).length > MAX_METADATA_STRING_LENGTH) {
+          return { ok: false, error: "valor de texto de metadata demasiado largo" };
+        }
+        continue;
+      }
+      return { ok: false, error: "metadata sólo admite valores escalares" };
+    }
+    if (Buffer.byteLength(JSON.stringify(metadata), "utf8") > MAX_METADATA_SERIALIZED_BYTES) {
+      return { ok: false, error: "metadata demasiado grande" };
+    }
+    parsedMetadata = metadata as EventMetadata;
+  }
+
   return {
     ok: true,
     value: {
@@ -228,6 +308,9 @@ export function validateEventPayload(body: unknown): Result<EventPayload> {
       severity: severity as Severity,
       startedAt,
       value: (value as number | undefined) ?? null,
+      endedAt: (endedAt as string | undefined) ?? null,
+      peakValue: (peakValue as number | undefined) ?? null,
+      metadata: parsedMetadata,
     },
   };
 }
