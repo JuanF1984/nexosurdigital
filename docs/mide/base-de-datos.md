@@ -356,6 +356,47 @@ real, previo diff):
   firmas) el cuerpo de `mide_claim_event_notification` (sella la reserva) y
   `mide_release_event_notification` (libera la reserva). No recrea columnas ni
   cambia firmas. `grant execute` sólo para la función nueva.
+- `20260905120004_fix_mide_upsert_event_return_types.sql` — **incremental;
+  falta aplicar.** Corrige `mide_upsert_event`, que durante el Ensayo 2 fallaba
+  con `POST /rest/v1/rpc/mide_upsert_event -> 400`, `SQLSTATE 42804`,
+  `structure of query does not match function result type` (mientras
+  `mide_ingest_report` seguía respondiendo `200`). Causa: su `return query ...
+  returning` devolvía columnas de `public.events` "en crudo" y PostgreSQL exige
+  que el resultado de un `RETURN QUERY` coincida **posición a posición y por
+  tipo binario-compatible** con el `RETURNS TABLE` (no aplica casts de
+  asignación). Si en la base real `value_at_start` / `peak_value` están como
+  `double precision` (o `real`), o `started_at` / `ended_at` sin `tz`, o
+  `status` como `varchar`, la RPC aborta en tiempo de ejecución. La corrección
+  fija cada expresión del `returning` al tipo exacto declarado
+  (`::text` / `::uuid` / `::numeric` / `::timestamptz`). Misma firma y mismo
+  `RETURNS TABLE` → `create or replace` (sin `drop`, conserva `grant`s y
+  dependencias). No toca columnas ni funciones de notificación. Contrato SQL
+  cubierto contra PostgreSQL real en
+  `src/test/mide-upsert-event.pg.test.ts` (pglite embebido).
+- `20260905120005_align_mide_upsert_event_status_values.sql` — **incremental;
+  falta aplicar.** Después de `004`, `mide_upsert_event` pasaba a fallar con
+  `SQLSTATE 23514`, `violates check constraint "events_status_check"`. Causa: la
+  función escribe los literales `'open'` (apertura) y `'resolved'` (cierre),
+  tomados de la reconstrucción `20260818000000` / esta doc, pero la tabla real
+  **no** usa ese vocabulario — su CHECK se llama `events_status_check` (nombre
+  autogenerado de un check **sin nombre**, no el `events_status_valid` de la
+  reconstrucción) y rechaza al menos `'open'`. El `23514` no aparecía antes
+  porque el `42804` de `120002` abortaba la sentencia antes de llegar al CHECK.
+  Evidencia del valor real de "abierto": la ruta `/api/mide/event` **original**
+  (commit `9d92aed`, previa al modelo de fila única) insertaba eventos **sin**
+  setear `status` y esos inserts se verificaron OK contra la base real
+  (`api.md`, "15/17 casos"), así que el `DEFAULT` de `events.status` es válido y
+  ES el estado "activo". La corrección re‑crea `mide_upsert_event` para:
+  escribir en apertura el `DEFAULT` de la columna, en cierre el otro valor que
+  el CHECK admite (preferentemente uno con pinta de "resuelto/cerrado"), ambos
+  resueltos del catálogo y probados con un `insert` de prueba con rollback (si
+  el CHECK los rechaza, la migración **aborta con mensaje claro**); y **devolver
+  un `event_status` normalizado** (`open` / `resolved` derivado de `ended_at`),
+  para que el contrato HTTP de `/api/mide/event` y `route.ts`
+  (`row.event_status === "resolved"`) no cambien. **No toca el constraint.**
+  Misma firma y mismo `RETURNS TABLE` → `create or replace`. No toca columnas ni
+  funciones de notificación. Cubierto en `src/test/mide-upsert-event.pg.test.ts`
+  (reproduce el `23514` y prueba apertura/cierre con el vocabulario real).
 
 `supabase/seed.sql` es un archivo distinto, con datos de desarrollo/testing
 (entre ellos el dispositivo `mide-frio-001` y el fixture de dispositivo

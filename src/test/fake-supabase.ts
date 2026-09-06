@@ -9,6 +9,18 @@
 //   - rpc("mide_ingest_report", ...)              -> one-row-per-period idempotent upsert
 // and it enforces the same uniqueness / "keep the most complete" rules the
 // real Postgres functions do, so idempotency can be asserted without a DB.
+//
+// LIMITATION: this is a plain JS object store with no type system. It returns
+// whatever JS values it was handed and cannot reproduce PostgreSQL's runtime
+// checks -- in particular a plpgsql `RETURN QUERY ... RETURNING <column>` whose
+// result type is not binary-coercible to the function's `RETURNS TABLE`
+// (e.g. events.value_at_start stored as `double precision` vs an OUT column
+// declared `numeric`), which fails with SQLSTATE 42804 "structure of query
+// does not match function result type". The Ensayo 2 mide_upsert_event bug was
+// exactly this and stayed invisible here. The SQL contract of that function is
+// covered against real PostgreSQL in src/test/mide-upsert-event.pg.test.ts
+// (embedded pglite); keep the shapes returned by #upsertEvent below in sync
+// with that function's declared RETURNS TABLE.
 
 export type FakeDevice = { id: string; device_code: string; active: boolean };
 export type FakeDeviceConfig = { device_id: string; max_threshold: number | null };
